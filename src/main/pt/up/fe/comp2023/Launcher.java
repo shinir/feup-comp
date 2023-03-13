@@ -7,13 +7,16 @@ import java.util.Map;
 
 import pt.up.fe.comp.TestUtils;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
+import pt.up.fe.comp.jmm.report.Report;
+import pt.up.fe.comp.jmm.report.ReportType;
+import pt.up.fe.comp.jmm.report.Stage;
 import pt.up.fe.specs.util.SpecsIo;
 import pt.up.fe.specs.util.SpecsLogs;
 import pt.up.fe.specs.util.SpecsSystem;
 
 public class Launcher {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         // Setups console logging and other things
         SpecsSystem.programStandardInit();
 
@@ -39,6 +42,13 @@ public class Launcher {
 
         // Check if there are parsing errors
         TestUtils.noErrors(parserResult.getReports());
+
+        /*
+        if(TestUtils.getNumErrors(parserResult.getReports()) != 0) {
+            parserResult.getReports().add(new Report(ReportType.ERROR, Stage.SYNTATIC, 0, "AST root node is null."));
+            return new parserResult.getReports(null, parser.);
+        }
+        */
 
         // ... add remaining stages
     }

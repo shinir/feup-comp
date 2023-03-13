@@ -2,6 +2,7 @@ package pt.up.fe.comp2023;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
+import pt.up.fe.comp.TestUtils;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.ast.antlr.AntlrParser;
 import pt.up.fe.comp.jmm.ast.antlr.ThrowingErrorListener;
@@ -39,7 +40,6 @@ public class SimpleParser implements JmmParser {
 
     @Override
     public JmmParserResult parse(String jmmCode, String startingRule, Map<String, String> config) {
-        int error = 0;
         try {
             // Convert code string into a character stream
             var input = new ANTLRInputStream(jmmCode);
@@ -50,8 +50,6 @@ public class SimpleParser implements JmmParser {
             // Transforms tokens into a parse tree
             var parser = new JavammParser(tokens);
 
-            getNumberOfSyntaxErrors(error);
-
             // Convert ANTLR CST to JmmNode AST
             return AntlrParser.parse(lex, parser, startingRule)
                     // If there were no errors and a root node was generated, create a JmmParserResult with the node
@@ -61,13 +59,8 @@ public class SimpleParser implements JmmParser {
                             "There were syntax errors during parsing, terminating")));
 
         } catch (Exception e) {
-            error++;
             // There was an uncaught exception during parsing, create an error JmmParserResult without root node
             return JmmParserResult.newError(Report.newError(Stage.SYNTATIC, -1, -1, "Exception during parsing", e));
         }
-    }
-
-    public void getNumberOfSyntaxErrors(int errors) {
-        //System.out.println("Report: " + errors + " errors found.");
     }
 }
