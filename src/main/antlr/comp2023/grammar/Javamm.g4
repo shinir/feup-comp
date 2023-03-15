@@ -4,28 +4,23 @@ grammar Javamm;
     package pt.up.fe.comp2023;
 }
 
-INT : [0-9]+ ;
-ID : [a-zA-Z_][a-zA-Z_0-9]* ;
-NL: '\n';
-WS : [ \t\r\f]+ -> skip ;
-SLC : '//' ~[\n]* ;
-MLC : '/*' .*? '*/' ;
 BOOL : 'true' | 'false' ;
+INT : [-]*[0-9][0-9]* ;
+ID : [a-zA-Z_$][a-zA-Z_$0-9]* ;
+WS : [ \n\t\r\f]+ -> skip ;
+SLC : '//' ~[\n]* -> skip;
+MLC : '/*' .*? '*/' -> skip;
 
 program
-    : ( declaration | statement )* EOF #ProgramDeclaration
-    ;
-
-declaration
-    : importDeclaration | classDeclaration
+    :  importDeclaration* classDeclaration  EOF #ProgramDeclaration
     ;
 
 importDeclaration
-    : 'import' var=ID ( '.' var=ID )* ';' #Import
+    : 'import' className+=ID ( '.' className+=ID )* ';' #Import
     ;
 
 classDeclaration
-    : 'class' var=ID ( 'extends' var=ID )? '{' ( varDeclaration )* ( methodDeclaration )* '}' #Class
+    : 'class' className=ID ( 'extends' superClass=ID )? '{' ( varDeclaration )* ( methodDeclaration )* '}' #Class
     ;
 
 varDeclaration
@@ -33,7 +28,7 @@ varDeclaration
     ;
 
 methodDeclaration
-    : ('public')? type var=ID '(' ( type var=ID ( ',' type var=ID )* )? ')' '{' ( varDeclaration )* ( statement )* 'return' expression ';' '}' #FunctionMethod
+    : ('public')? type functName=ID '(' ( type var=ID ( ',' type var=ID )* )? ')' '{' ( varDeclaration )* ( statement )* 'return' expression ';' '}' #FunctionMethod
     | ('public')? 'static' 'void' 'main' '(' 'String' '[' ']' var=ID ')' '{' ( varDeclaration )* ( statement )* '}' #MainMethod
     ;
 
@@ -41,36 +36,35 @@ type
     : 'int' '[' ']' #Array
     | 'boolean' #Boolean
     | 'int' #Integer
+    | 'char' #Character
     | 'String' #String
-    | var=ID #Identifier
+    | var=ID #Literal
     ;
 
 statement
-    : '{' ( statement )* '}' #Condition
+    : '{' ( statement )* '}' #Scope
     | 'if' '(' expression ')' statement 'else' statement #IfCondition
     | 'while' '(' expression ')' statement #WhileCondition
-    | expression ';' #ExprCondition
-    | ID '=' expression ';' #VarDeclare
-    | ID '[' expression ']' '=' expression ';' #ArrayDeclare
-    | NL #NewLine
+    | expression ';' #ExprStmt
+    | ID '=' expression ';' #Assignment
+    | ID '[' expression ']' '=' expression ';' #ArrayAssignment
     ;
 
 expression
-    : '!' expression #Negative
+    : '!' expression #Not
     | '(' expression ')' #Parenthesis
-    | expression ( op='&&' | op='||' ) expression #BinaryOp
-    | expression ( op='<' | op='>' | op='<=' | op='>=' ) expression #BinaryOp
     | expression ( op='*' | op='/' ) expression #BinaryOp
     | expression ( op='+' | op='-' ) expression #BinaryOp
-    | expression '[' expression ']' #ExpressionRange
+    | expression ( op='<' | op='>' | op='<=' | op='>=' ) expression #BinaryOp
+    | expression ( op='&&' | op='||' ) expression #BinaryOp
+    | expression '[' expression ']' #ArrayAccess
     | expression '.' 'length' #GetLength
-    | expression '.' var=ID '(' ( expression ( ',' expression )* )? ')' #CallFunction
+    | expression '.' functName=ID '(' ( expression ( ',' expression )* )? ')' #CallFunction
     | 'new' 'int' '[' expression ']' #NewArray
     | 'new' var=ID '(' ')' #NewVar
     | expression WS expression #NLExpression
+    | value=BOOL #Bool
     | value=INT #Int
-    | 'true' #True
-    | 'false' #False
-    | var=ID #Id
+    | var=ID #Variable
     | 'this' #This
     ;

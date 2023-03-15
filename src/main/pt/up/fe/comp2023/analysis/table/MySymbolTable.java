@@ -6,6 +6,7 @@ import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp2023.analysis.table.Method;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.lang.Class;
@@ -16,13 +17,21 @@ public class MySymbolTable implements SymbolTable {
     List<Symbol> fields;
     Map<String, Method> methods;
 
+    public MySymbolTable() {
+        this.imports = new ArrayList<>();
+        this.className = null;
+        this.supers = null;
+        this.fields = new ArrayList<>();
+        this.methods = new HashMap<>();
+    }
+
     @Override
     public List<String> getImports() {
         return imports;
     }
 
-    public void setImports(List<String> imports) {
-        this.imports = imports;
+    public void setImports(String imports) {
+        this.imports.add(imports);
     }
 
     @Override
@@ -57,7 +66,7 @@ public class MySymbolTable implements SymbolTable {
         return new ArrayList<>(this.methods.keySet());
     }
 
-    public void setMethods(String name, List<Symbol> parameters, List<Symbol> localVariables, Type type) {
+    public void addMethods(String name, List<Symbol> parameters, List<Symbol> localVariables, Type type) {
         this.methods.put(name, new Method(type, parameters, localVariables));
     }
 
