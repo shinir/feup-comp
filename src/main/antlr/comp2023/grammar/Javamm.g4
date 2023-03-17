@@ -24,21 +24,22 @@ classDeclaration
     ;
 
 varDeclaration
-    : type name=ID ';' #VariableDeclaration
+    : type name=ID ';'
     ;
 
 methodDeclaration
-    : ('public')? type functName=ID '(' ( type name=ID ( ',' type name=ID )* )? ')' '{' ( varDeclaration )* ( statement )* 'return' expression ';' '}' #FunctionMethod
-    | ('public')? 'static' 'void' 'main' '(' 'String' '[' ']' functName=ID ')' '{' ( varDeclaration )* ( statement )* '}' #MainMethod
+    : ('public')? type funcName=ID '(' ( type name=ID ( ',' type name=ID )* )? ')' '{' ( varDeclaration )* ( statement )* 'return' expression ';' '}' #FunctionMethod
+    | ('public')? 'static' 'void' 'main' '(' 'String' '[' ']' name=ID ')' '{' ( varDeclaration )* ( statement )* '}' #MainMethod
     ;
 
 type
     : 'int' '[' ']' #Array
     | 'boolean' #Boolean
     | 'int' #Integer
-    | 'char' #Character // fixed testIdStartingChar2
+    | 'char' #Character
     | 'String' #String
-    | literal=ID #Literal
+    | ID #Literal
+    | 'void' #Void
     ;
 
 statement

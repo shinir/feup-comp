@@ -7,7 +7,7 @@ import pt.up.fe.comp.jmm.ast.JmmNode;
 public class AnalysisUtils {
 
     public Type getType(JmmNode jmmNode) {
-        return new Type(jmmNode.get("type"), true);
+        return new Type(jmmNode.getKind(), true);
     }
 
     public Symbol getSymbol(JmmNode jmmNode) {

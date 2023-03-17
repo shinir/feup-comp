@@ -3,13 +3,11 @@ package pt.up.fe.comp2023.analysis.table;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.analysis.table.Type;
-import pt.up.fe.comp2023.analysis.table.Method;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.lang.Class;
 
 public class MySymbolTable implements SymbolTable {
     List<String> imports = new ArrayList<>();
