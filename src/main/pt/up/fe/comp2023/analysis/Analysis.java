@@ -14,10 +14,9 @@ public class Analysis implements JmmAnalysis {
     @Override
     public JmmSemanticsResult semanticAnalysis(JmmParserResult jmmParserResult) {
         MySymbolTable symbolTable = new MySymbolTable();
-        Visitor visitor = new Visitor(symbolTable);
+        var Visitor = new Visitor();
         JmmNode root = jmmParserResult.getRootNode();
 
-        var Visitor = new Visitor(symbolTable);
         Visitor.visit(root, symbolTable);
         System.out.println("Imports: " + symbolTable.getImports());
 
