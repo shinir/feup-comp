@@ -4,10 +4,12 @@ import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 
+import java.util.Objects;
+
 public class AnalysisUtils {
 
     public Type getType(JmmNode jmmNode) {
-        return new Type(jmmNode.getKind(), true);
+        return new Type(jmmNode.getKind(), Objects.equals(jmmNode.getKind(), "Array"));
     }
 
     public Symbol getSymbol(JmmNode jmmNode) {

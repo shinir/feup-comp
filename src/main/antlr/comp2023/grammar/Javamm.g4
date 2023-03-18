@@ -28,7 +28,7 @@ varDeclaration
     ;
 
 methodDeclaration
-    : ('public')? type funcName=ID '(' ( type name=ID ( ',' type name=ID )* )? ')' '{' ( varDeclaration )* ( statement )* 'return' expression ';' '}' #FunctionMethod
+    : ('public')? type funcName=ID '(' ( type name+=ID ( ',' type name+=ID )* )? ')' '{' ( varDeclaration )* ( statement )* 'return' expression ';' '}' #FunctionMethod
     | ('public')? 'static' 'void' 'main' '(' 'String' '[' ']' name=ID ')' '{' ( varDeclaration )* ( statement )* '}' #MainMethod
     ;
 
@@ -66,7 +66,7 @@ expression
     | 'new' name=ID '(' ')' #NewVar
     | expression WS expression #NLExpression
     | value=BOOL #Bool
-    | value=INT #Int
+    | value=INTEGER #Int
     | name=ID #Variable
     | 'this' #This
     ;
