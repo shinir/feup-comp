@@ -20,7 +20,7 @@ public class AnalysisVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
         addVisit("Program", this::dealWithProgram);
         addVisit("Import", this::dealWithImports);
         addVisit("Class", this::dealWithClass);
-        addVisit("VarDeclaration", this::dealWithClass);
+        addVisit("VarDeclaration", this::dealWithVarDeclaration);
         addVisit("FunctionMethod", this::dealWithFunctionMethod);
         addVisit("MainMethod", this::dealWithMainMethod);
         addVisit("Type", this::dealWithTypes);
@@ -49,6 +49,10 @@ public class AnalysisVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
         if(jmmNode.hasAttribute("superClass")) {
             symbolTable.addSupers(jmmNode.get("superClass"));
         }
+        return true;
+    }
+
+    private Boolean dealWithVarDeclaration(JmmNode jmmNode, MySymbolTable symbolTable) {
         for (var node : jmmNode.getChildren()){
             if (!jmmNode.getKind().equals("VarDeclaration")) return false;
             Symbol symbol = new Symbol(utils.getType(node), node.getKind());
