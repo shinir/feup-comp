@@ -56,7 +56,7 @@ type
 
 statement
     : '{' ( statement )* '}' #Scope
-    | 'if' '(' expression ')' statement 'else' statement #IfCondition
+    | 'if' '(' expression ')' statement ('else' statement)* #IfCondition
     | 'while' '(' expression ')' statement #WhileCondition
     | 'return' expression ';' #Return
     | expression ';' #ExprStmt
