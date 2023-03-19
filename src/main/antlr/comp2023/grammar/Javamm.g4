@@ -24,7 +24,7 @@ classDeclaration
     ;
 
 varDeclaration
-    : type name=ID ';'
+    : type name=ID ';' #VariableDeclaration
     ;
 
 methodDeclaration
@@ -33,15 +33,15 @@ methodDeclaration
     ;
 
 functionMethodDeclaration
-    : ('public')? type funcName=ID '(' ( parameter ( ',' parameter )* )? ')' '{' ( varDeclaration )* ( statement )* 'return' expression ';' '}'
+    : ('public')? type funcName=ID '(' ( parameter ( ',' parameter )* )? ')' '{' ( varDeclaration )* ( statement )* 'return' expression ';' '}' #FuncMethodDeclaration
     ;
 
 mainMethodDeclaration
-     : ('public')? 'static' 'void' 'main' '(' 'String' '[' ']' name=ID ')' '{' ( varDeclaration )* ( statement )* '}'
+     : ('public')? 'static' 'void' 'main' '(' 'String' '[' ']' name=ID ')' '{' ( varDeclaration )* ( statement )* '}' #MainMethod
      ;
 
 parameter
-    : type name=ID
+    : type name=ID #Param
     ;
 
 type
@@ -56,7 +56,7 @@ type
 
 statement
     : '{' ( statement )* '}' #Scope
-    | 'if' '(' expression ')' statement 'else' statement #IfCondition
+    | 'if' '(' expression ')' statement ('else' statement)? #IfCondition
     | 'while' '(' expression ')' statement #WhileCondition
     | 'return' expression ';' #Return
     | expression ';' #ExprStmt
