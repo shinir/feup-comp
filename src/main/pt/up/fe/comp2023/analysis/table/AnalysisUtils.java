@@ -9,7 +9,7 @@ import java.util.Objects;
 public class AnalysisUtils {
 
     public Type getType(JmmNode jmmNode) {
-        return new Type(jmmNode.getKind(), Objects.equals(jmmNode.getKind(), "Array"));
+        return new Type(jmmNode.get("name"), Objects.equals(jmmNode.getKind(), "Array"));
     }
 
     public Symbol getSymbol(JmmNode jmmNode) {
