@@ -8,7 +8,7 @@ BOOL : 'true' | 'false' ;
 INTEGER : [0] | [1-9][0-9]* ;
 ID : [a-zA-Z_$][a-zA-Z_$0-9]* ;
 WS : [ \n\t\r\f]+ -> skip ;
-SLC : '//' ~[\n\r]* -> skip;
+SLC : '//' ~[\n]* -> skip;
 MLC : '/*' .*? '*/' -> skip;
 
 program
@@ -65,21 +65,20 @@ statement
     ;
 
 expression
-    : '(' expression ')' #Parenthesis
-    | expression '[' expression ']' #ArrayAccess
-    | expression '.' 'length' #GetLength
-    | expression '.' functName=ID '(' ( expression ( ',' expression )* )? ')' #CallFunction
-    | '!' expression #Not
+    : '!' expression #Not
+    | '(' expression ')' #Parenthesis
     | expression ( op='*' | op='/' ) expression #BinaryOp
     | expression ( op='+' | op='-' ) expression #BinaryOp
     | expression ( op='<' | op='>' | op='<=' | op='>=' | op='==' | op='!=' ) expression #BinaryOp
     | expression ( op='&&' | op='||' ) expression #BinaryOp
+    | expression '[' expression ']' #ArrayAccess
+    | expression '.' 'length' #GetLength
+    | expression '.' functName=ID '(' ( expression ( ',' expression )* )? ')' #CallFunction
     | 'new' 'int' '[' expression ']' #NewArray
     | 'new' name=ID '(' ')' #NewVar
-    | value=INTEGER #Integer
-    | value=BOOL #Bool
-    | name=ID #Variable
     | expression WS expression #NLExpression
+    | value=BOOL #Bool
+    | value=INTEGER #Integer
+    | name=ID #Variable
     | 'this' #This
     ;
-
