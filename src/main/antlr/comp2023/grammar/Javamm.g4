@@ -69,7 +69,7 @@ expression
     | '(' expression ')' #Parenthesis
     | expression ( op='*' | op='/' ) expression #BinaryOp
     | expression ( op='+' | op='-' ) expression #BinaryOp
-    | expression ( op='<' | op='>' | op='<=' | op='>=' ) expression #BinaryOp
+    | expression ( op='<' | op='>' | op='<=' | op='>=' | op='==' | op='!=' ) expression #BinaryOp
     | expression ( op='&&' | op='||' ) expression #BinaryOp
     | expression '[' expression ']' #ArrayAccess
     | expression '.' 'length' #GetLength
