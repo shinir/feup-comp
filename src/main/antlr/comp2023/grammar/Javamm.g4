@@ -28,18 +28,30 @@ varDeclaration
     ;
 
 methodDeclaration
-    : ('public')? type funcName=ID '(' ( type name+=ID ( ',' type name+=ID )* )? ')' '{' ( varDeclaration )* ( statement )* 'return' expression ';' '}' #FunctionMethod
-    | ('public')? 'static' 'void' 'main' '(' 'String' '[' ']' name=ID ')' '{' ( varDeclaration )* ( statement )* '}' #MainMethod
+    : mainMethodDeclaration
+    | functionMethodDeclaration
     ;
 
+functionMethodDeclaration
+    : ('public')? type funcName=ID '(' ( parameter ( ',' parameter )* )? ')' '{' ( varDeclaration )* ( statement )* 'return' expression ';' '}'
+    ;
+
+mainMethodDeclaration
+     : ('public')? 'static' 'void' 'main' '(' 'String' '[' ']' name=ID ')' '{' ( varDeclaration )* ( statement )* '}'
+     ;
+
+parameter
+  : type name=ID
+  ;
+
 type
-    : 'int' '[' ']' #Array
-    | 'boolean' #Boolean
-    | 'int' #Integer
-    | 'char' #Character
-    | 'String' #String
-    | ID #Literal
-    | 'void' #Void
+    : name = 'int' '[' ']' #Array
+    | name = 'boolean' #Boolean
+    | name = 'int' #Integer
+    | name = 'char' #Character
+    | name = 'String' #String
+    | name = ID #Literal
+    | name = 'void' #Void
     ;
 
 statement

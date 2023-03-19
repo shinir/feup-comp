@@ -21,9 +21,10 @@ public class AnalysisVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
         addVisit("Import", this::dealWithImports);
         addVisit("Class", this::dealWithClass);
         addVisit("VarDeclaration", this::dealWithVarDeclaration);
-        addVisit("FunctionMethod", this::dealWithFunctionMethod);
-        addVisit("MainMethod", this::dealWithMainMethod);
+        addVisit("FunctionMethodDeclaration", this::dealWithFunctionMethod);
+        addVisit("MainMethodDeclaration", this::dealWithMainMethod);
         addVisit("Type", this::dealWithTypes);
+        this.setDefaultVisit(this::myVisitAllChildren);
         //addVisit("Statement", this::dealWithStatements);
         //addVisit("Expression", this::dealWithExpressions);
         //addVisit("Return", this::dealWithReturn);
@@ -34,6 +35,13 @@ public class AnalysisVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
         for(JmmNode node : jmmNode.getChildren()) {
             if(!node.getKind().equals("importName"))
                 return false;
+            visit(node, symbolTable);
+        }
+        return true;
+    }
+
+    private Boolean myVisitAllChildren(JmmNode jmmNode, MySymbolTable symbolTable) {
+        for (JmmNode node: jmmNode.getChildren()) {
             visit(node, symbolTable);
         }
         return true;
@@ -64,21 +72,22 @@ public class AnalysisVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
     private Boolean dealWithFunctionMethod(JmmNode jmmNode, MySymbolTable symbolTable) {
         String functionName;
         Type functionType = utils.getType(jmmNode.getJmmChild(0));
-        Type returnType = new Type(jmmNode.getJmmChild(jmmNode.getNumChildren()-1).get("name"), Objects.equals(jmmNode.getKind(), "Array"));
+        Type returnType = new Type(jmmNode.getJmmChild(0).get("name"), Objects.equals(jmmNode.getKind(), "Array"));
         List<Symbol> parameters = new ArrayList<>();
         List<Symbol> variables = new ArrayList<>();
 
         functionName = jmmNode.get("funcName");
 
-        if(jmmNode.hasAttribute("type")) {
-            Symbol param = new Symbol(utils.getType(jmmNode), jmmNode.get("name"));
-            parameters.add(param);
-        }
 
         for(JmmNode node : jmmNode.getChildren()) {
             if(node.getKind().equals("VarDeclaration")) {
                 Symbol symbol = utils.getSymbol(node);
                 variables.add(symbol);
+            }
+
+            if(node.getKind().equals("Parameter")) {
+                Symbol param = new Symbol(utils.getType(node), node.get("name"));
+                parameters.add(param);
             }
         }
 
