@@ -24,7 +24,7 @@ classDeclaration
     ;
 
 varDeclaration
-    : type name=ID ';' #VariableDeclaration
+    : type name=ID ';'
     ;
 
 methodDeclaration
@@ -33,15 +33,15 @@ methodDeclaration
     ;
 
 functionMethodDeclaration
-    : ('public')? type funcName=ID '(' ( parameter ( ',' parameter )* )? ')' '{' ( varDeclaration )* ( statement )* 'return' expression ';' '}' #FuncMethodDeclaration
+    : ('public')? type funcName=ID '(' ( parameter ( ',' parameter )* )? ')' '{' ( varDeclaration )* ( statement )* 'return' expression ';' '}'
     ;
 
 mainMethodDeclaration
-     : ('public')? 'static' 'void' 'main' '(' 'String' '[' ']' name=ID ')' '{' ( varDeclaration )* ( statement )* '}' #MainMethod
+     : ('public')? 'static' 'void' 'main' '(' 'String' '[' ']' name=ID ')' '{' ( varDeclaration )* ( statement )* '}'
      ;
 
 parameter
-    : type name=ID #Param
+    : type name=ID
     ;
 
 type
