@@ -40,7 +40,7 @@ public class AnalysisVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
         }
         for (var node : jmmNode.getChildren()){
             if (node.getKind().equals("VarDeclaration")) {
-                Symbol symbol = new Symbol(utils.getType(node.getJmmChild(0)), node.get("name"));
+                Symbol symbol = new Symbol(utils.getType(node.getJmmChild(0)), node.getJmmChild(0).get("name"));
                 symbolTable.addFields(symbol);
             }
         }
@@ -62,11 +62,10 @@ public class AnalysisVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
             }
 
             if(node.getKind().equals("Parameter")) {
-                Symbol param = new Symbol(utils.getType(node.getJmmChild(0)), node.get("name"));
+                Symbol param = new Symbol(utils.getType(node.getJmmChild(0)), node.getJmmChild(0).get("name"));
                 parameters.add(param);
             }
         }
-
         symbolTable.addMethods(functionName, parameters, variables, returnType);
         return true;
     }

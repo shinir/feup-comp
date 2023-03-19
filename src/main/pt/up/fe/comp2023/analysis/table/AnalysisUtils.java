@@ -9,7 +9,9 @@ import java.util.Objects;
 public class AnalysisUtils {
 
     public Type getType(JmmNode jmmNode) {
-        return new Type(jmmNode.get("name"), Objects.equals(jmmNode.getKind(), "Array"));
+        boolean isArray = false;
+        if(jmmNode.hasAttribute("isArray")) isArray = true;
+        return new Type(jmmNode.get("name"), isArray);
     }
 
     public Symbol getSymbol(JmmNode jmmNode) {

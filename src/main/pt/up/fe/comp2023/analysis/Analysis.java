@@ -21,7 +21,7 @@ public class Analysis implements JmmAnalysis {
         JmmNode root = jmmParserResult.getRootNode();
 
         Visitor.visit(root, symbolTable);
-        System.out.println("SymbolTable: \n" + symbolTable.print());
+        //System.out.println("SymbolTable: \n" + symbolTable.print());
 
         return new JmmSemanticsResult(jmmParserResult, symbolTable, Collections.emptyList());
     }
