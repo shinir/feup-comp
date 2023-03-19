@@ -17,6 +17,4 @@ public class AnalysisUtils {
         Type type = getType(jmmNode.getJmmChild(0));
         return new Symbol(type, symbol);
     }
-
-
 }

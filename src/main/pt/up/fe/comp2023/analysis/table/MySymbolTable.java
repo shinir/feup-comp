@@ -3,11 +3,9 @@ package pt.up.fe.comp2023.analysis.table;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.analysis.table.Type;
+import pt.up.fe.comp.jmm.report.Report;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class MySymbolTable implements SymbolTable {
     List<String> imports = new ArrayList<>();
@@ -20,8 +18,8 @@ public class MySymbolTable implements SymbolTable {
         return imports;
     }
 
-    public void addImports(String lol) {
-        this.imports.add(lol);
+    public void addImports(String imports) {
+        this.imports.add(imports);
     }
 
     @Override
