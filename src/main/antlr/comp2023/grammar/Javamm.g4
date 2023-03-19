@@ -47,7 +47,7 @@ parameter
 type
     : name = 'int' '[' ']' #Array
     | name = 'boolean' #Boolean
-    | name = 'int' #Integer
+    | name = 'int' #IntegerType
     | name = 'char' #Character
     | name = 'String' #String
     | name = ID #Literal
@@ -78,7 +78,7 @@ expression
     | 'new' name=ID '(' ')' #NewVar
     | expression WS expression #NLExpression
     | value=BOOL #Bool
-    | value=INTEGER #Int
+    | value=INTEGER #Integer
     | name=ID #Variable
     | 'this' #This
     ;
