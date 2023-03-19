@@ -12,7 +12,7 @@ SLC : '//' ~[\n]* -> skip;
 MLC : '/*' .*? '*/' -> skip;
 
 program
-    :  importDeclaration* classDeclaration EOF #ProgramDeclaration
+    :  (importDeclaration)* classDeclaration EOF #ProgramDeclaration
     ;
 
 importDeclaration
@@ -41,8 +41,8 @@ mainMethodDeclaration
      ;
 
 parameter
-  : type name=ID
-  ;
+    : type name=ID
+    ;
 
 type
     : name = 'int' '[' ']' #Array
@@ -55,13 +55,13 @@ type
     ;
 
 statement
-    : expression ';' #ExprStmt
-    | ID '=' expression ';' #Assignment
-    | ID '[' expression ']' '=' expression ';' #ArrayAssignment
+    : '{' ( statement )* '}' #Scope
     | 'if' '(' expression ')' statement 'else' statement #IfCondition
     | 'while' '(' expression ')' statement #WhileCondition
     | 'return' expression ';' #Return
-    | '{' ( statement )* '}' #Scope
+    | expression ';' #ExprStmt
+    | ID '=' expression ';' #Assignment
+    | ID '[' expression ']' '=' expression ';' #ArrayAssignment
     ;
 
 expression
