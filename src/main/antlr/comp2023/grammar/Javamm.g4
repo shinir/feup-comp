@@ -33,7 +33,7 @@ methodDeclaration
     ;
 
 functionMethodDeclaration
-    : ('public')? type funcName=ID '(' ( parameter ( ',' parameter )* )? ')' '{' ( varDeclaration )* ( statement )* 'return' expression ';' '}'
+    : ('public')? type funcName=ID '(' ( parameter ( ',' parameter )* )? ')' '{' ( varDeclaration )* ( statement )* 'return' returnExpression ';' '}'
     ;
 
 mainMethodDeclaration
@@ -42,6 +42,10 @@ mainMethodDeclaration
 
 parameter
     : type name=ID
+    ;
+
+returnExpression
+    : expression
     ;
 
 type
@@ -58,7 +62,7 @@ statement
     : '{' ( statement )* '}' #Scope
     | 'if' '(' expression ')' statement ('else' statement)? #IfCondition
     | 'while' '(' expression ')' statement #WhileCondition
-    | 'return' expression ';' #Return
+    //| 'return' expression ';' #Return
     | expression ';' #ExprStmt
     | ID '=' expression ';' #Assignment
     | ID '[' expression ']' '=' expression ';' #ArrayAssignment
