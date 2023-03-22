@@ -62,7 +62,6 @@ statement
     : '{' ( statement )* '}' #Scope
     | 'if' '(' expression ')' statement ('else' statement)? #IfCondition
     | 'while' '(' expression ')' statement #WhileCondition
-    //| 'return' expression ';' #Return
     | expression ';' #ExprStmt
     | ID '=' expression ';' #Assignment
     | ID '[' expression ']' '=' expression ';' #ArrayAssignment
