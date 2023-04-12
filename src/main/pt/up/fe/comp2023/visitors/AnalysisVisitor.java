@@ -1,19 +1,18 @@
-package pt.up.fe.comp2023.analysis.table;
+package pt.up.fe.comp2023.visitors;
 
-import pt.up.fe.comp.jmm.report.ReportType;
-import pt.up.fe.comp.jmm.report.Stage;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ast.PreorderJmmVisitor;
 import pt.up.fe.comp.jmm.report.Report;
+import pt.up.fe.comp2023.MySymbolTable;
+import pt.up.fe.comp2023.utils.AnalysisUtils;
 
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class AnalysisVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> {
     private final AnalysisUtils utils = new AnalysisUtils();
+    List<Report> reports = new ArrayList<Report>();
 
     @Override
     protected void buildVisitor() {
@@ -88,5 +87,9 @@ public class AnalysisVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
 
         symbolTable.addMethods("main", parameters, variables, new Type("void", false));
         return true;
+    }
+
+    public List<Report> getReports() {
+        return reports;
     }
 }

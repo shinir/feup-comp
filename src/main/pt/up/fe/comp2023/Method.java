@@ -1,4 +1,4 @@
-package pt.up.fe.comp2023.analysis.table;
+package pt.up.fe.comp2023;
 
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.Type;
