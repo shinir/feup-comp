@@ -5,6 +5,8 @@ import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ast.PreorderJmmVisitor;
 import pt.up.fe.comp.jmm.report.Report;
+import pt.up.fe.comp.jmm.report.ReportType;
+import pt.up.fe.comp.jmm.report.Stage;
 import pt.up.fe.comp2023.MySymbolTable;
 import pt.up.fe.comp2023.utils.AnalysisUtils;
 
@@ -13,6 +15,7 @@ import java.util.*;
 public class AnalysisVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> {
     private final AnalysisUtils utils = new AnalysisUtils();
     List<Report> reports = new ArrayList<Report>();
+    private final List<String> types = new ArrayList<>();
 
     @Override
     protected void buildVisitor() {
@@ -39,7 +42,8 @@ public class AnalysisVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
         }
         for (var node : jmmNode.getChildren()){
             if (node.getKind().equals("VarDeclaration")) {
-                Symbol symbol = new Symbol(utils.getType(node.getJmmChild(0)), node.getJmmChild(0).get("name"));
+                Type type = utils.getType(node.getJmmChild(0));
+                Symbol symbol = new Symbol(type, node.getJmmChild(0).get("name"));
                 symbolTable.addFields(symbol);
             }
         }
@@ -65,6 +69,7 @@ public class AnalysisVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
                 parameters.add(param);
             }
         }
+
         symbolTable.addMethods(functionName, parameters, variables, returnType);
         return true;
     }
