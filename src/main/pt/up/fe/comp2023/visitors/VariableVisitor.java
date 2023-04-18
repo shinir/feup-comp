@@ -15,46 +15,53 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, List<Report>> {
+public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> {
     private final AnalysisUtils utils = new AnalysisUtils();
     private final List<String> types = new ArrayList<>();
-    //List<Report> reports = new ArrayList<Report>();
+    List<Report> reports = new ArrayList<Report>();
 
     @Override
     protected void buildVisitor() {
         addVisit("VarDeclaration", this::dealWithVarDeclaration);
         addVisit("ComparisonOp", this::dealWithComparisonOp);
         addVisit("This", this::dealWithThis);
+        this.setDefaultVisit(this::myVisitAllChildren);
     }
 
-    private List<Report> dealWithComparisonOp(JmmNode jmmNode, MySymbolTable symbolTable) {
+    private Boolean myVisitAllChildren(JmmNode jmmNode, MySymbolTable symbolTable) {
+        return true;
+    }
+
+    private Boolean dealWithComparisonOp(JmmNode jmmNode, MySymbolTable symbolTable) {
         List<Report> reports = new ArrayList<>();
         Type lhsType = utils.getType(jmmNode.getJmmChild(0));
         Type rhsType = utils.getType(jmmNode.getJmmChild(1));
         if (lhsType.getName().equals("#UNKNOWN") || rhsType.getName().equals("#UNKNOWN")) {
             jmmNode.put("type", "UNKNOWN");
-            return reports;
+            //return reports;
         }
 
-        return reports;
+        return true;
     }
 
-    private List<Report> dealWithThis(JmmNode jmmNode, MySymbolTable symbolTable) {
+    private Boolean dealWithThis(JmmNode jmmNode, MySymbolTable symbolTable) {
         List<Report> reports = new ArrayList<Report>();
         if(jmmNode.getAncestor("MethodDeclaration").isEmpty()) {
             jmmNode.put("type", "UNKNOWN");
             reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0, "This expression cannot be used in a static method"));
         }
         utils.putType(jmmNode, new Type(symbolTable.getClassName(), false));
-        return reports;
+        return true;
     }
 
-    private List<Report> dealWithVarDeclaration(JmmNode jmmNode, MySymbolTable symbolTable) {
+    private Boolean dealWithVarDeclaration(JmmNode jmmNode, MySymbolTable symbolTable) {
         List<Report> reports = new ArrayList<Report>();
-        Type type = utils.getType(jmmNode.getJmmChild(1));
+        Type type = utils.getType(jmmNode.getJmmChild(0));
         if(!types.contains(type.getName())) reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0, "Class unknown/not instanced."));
-        return reports;
+        return true;
     }
 
-
+    public List<Report> getReports() {
+        return reports;
+    }
 }

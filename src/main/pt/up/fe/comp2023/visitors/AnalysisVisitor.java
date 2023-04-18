@@ -31,11 +31,14 @@ public class AnalysisVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
     }
 
     private Boolean dealWithImports(JmmNode jmmNode, MySymbolTable symbolTable) {
+        List<Report> reports = new ArrayList<>();
         symbolTable.addImports("." + jmmNode.get("importName"));
         return true;
     }
 
     private Boolean dealWithClass(JmmNode jmmNode, MySymbolTable symbolTable) {
+        List<Report> reports = new ArrayList<>();
+
         symbolTable.addClassName(jmmNode.get("name"));
         if(jmmNode.hasAttribute("superClass")) {
             symbolTable.addSupers(jmmNode.get("superClass"));
@@ -47,10 +50,13 @@ public class AnalysisVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
                 symbolTable.addFields(symbol);
             }
         }
+
         return true;
     }
 
     private Boolean dealWithFunctionMethod(JmmNode jmmNode, MySymbolTable symbolTable) {
+        List<Report> reports = new ArrayList<>();
+
         String functionName;
         Type returnType = utils.getType(jmmNode.getJmmChild(0));
         List<Symbol> parameters = new ArrayList<>();
