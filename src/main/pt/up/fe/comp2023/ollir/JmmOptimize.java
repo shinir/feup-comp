@@ -12,7 +12,7 @@ public class JmmOptimize implements JmmOptimization {
     public OllirResult toOllir(JmmSemanticsResult semanticsResult) {
         OllirGenerator ollirGenerator = new OllirGenerator(semanticsResult.getSymbolTable());
         ollirGenerator.visit(semanticsResult.getRootNode());
-        String code = ollirGenerator.getCode();
+        String ollirCode = ollirGenerator.getCode();
 
         return new OllirResult(semanticsResult, ollirCode, Collections.emptyList());
     }
