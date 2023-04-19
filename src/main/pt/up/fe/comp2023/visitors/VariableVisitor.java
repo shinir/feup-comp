@@ -29,11 +29,15 @@ public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
     }
 
     private Boolean myVisitAllChildren(JmmNode jmmNode, MySymbolTable symbolTable) {
+        //List<Report> report = new ArrayList<>();
+        for (JmmNode child : jmmNode.getChildren()){
+            visit(child, symbolTable);
+        }
         return true;
     }
 
     private Boolean dealWithComparisonOp(JmmNode jmmNode, MySymbolTable symbolTable) {
-        List<Report> reports = new ArrayList<>();
+
         Type lhsType = utils.getType(jmmNode.getJmmChild(0));
         Type rhsType = utils.getType(jmmNode.getJmmChild(1));
         if (lhsType.getName().equals("#UNKNOWN") || rhsType.getName().equals("#UNKNOWN")) {
