@@ -1,3 +1,4 @@
+import io;
 
 class MethodsAndFields{
 	int field1;
