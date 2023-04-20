@@ -24,7 +24,7 @@ public class AnalysisVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
         addVisit("importDeclaration", this::dealWithImports);
         addVisit("Class", this::dealWithClass);
         addVisit("FunctionMethodDeclaration", this::dealWithFunctionMethod);
-        addVisit("MainMethodDeclaration", this::dealWithMainMethod);
+        addVisit("MainMethodDeclaration", this::dealWithFunctionMethod);
         this.setDefaultVisit(this::myVisitAllChildren);
     }
 
@@ -95,9 +95,19 @@ public class AnalysisVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
     }
 
     private Boolean dealWithFunctionMethod(JmmNode jmmNode, MySymbolTable symbolTable) {
+        String functionName = "";
+        Type returnType;
 
-        String functionName = jmmNode.get("funcName");
-        Type returnType = utils.getType(jmmNode.getJmmChild(0));
+        if (jmmNode.getAttributes().contains("funcName")){
+            System.out.println(jmmNode);
+            functionName = jmmNode.get("funcName");
+            returnType = utils.getType(jmmNode.getJmmChild(0));
+        }
+        else {
+            functionName = jmmNode.get("name");
+            returnType = new Type("void", false);
+        }
+
         List<Symbol> parameters = new ArrayList<>();
         List<Symbol> variables = new ArrayList<>();
 
@@ -144,15 +154,6 @@ public class AnalysisVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
         }
 
         jmmNode.put("signature", method.toString());
-        return true;
-    }
-
-    
-    private Boolean dealWithMainMethod(JmmNode jmmNode, MySymbolTable symbolTable) {
-        List<Symbol> parameters = new ArrayList<>();
-        List<Symbol> variables = new ArrayList<>();
-
-        symbolTable.addMethods("main", parameters, variables, new Type("void", false));
         return true;
     }
 

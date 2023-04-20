@@ -37,7 +37,7 @@ functionMethodDeclaration
     ;
 
 mainMethodDeclaration
-     : ('public')? 'static' 'void' 'main' '(' 'String' '[' ']' funcName=ID ')' '{' ( varDeclaration )* ( statement )* '}'
+     : ('public')? 'static' 'void' 'main' '(' 'String' '[' ']' name=ID ')' '{' ( varDeclaration )* ( statement )* '}'
      ;
 
 parameter
