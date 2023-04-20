@@ -17,6 +17,7 @@ public class AnalysisVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
     private final AnalysisUtils utils = new AnalysisUtils();
     List<Report> reports = new ArrayList<Report>();
     private final List<String> types = new ArrayList<>();
+    private final String defaultMessage = "DEFAULT ERROR MESSAGE";
 
     @Override
     protected void buildVisitor() {
@@ -28,7 +29,7 @@ public class AnalysisVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
     }
 
     private Boolean myVisitAllChildren(JmmNode jmmNode, MySymbolTable symbolTable) {
-        //List<Report> report = new ArrayList<>();
+
         for (JmmNode child : jmmNode.getChildren()){
             visit(child, symbolTable);
         }
@@ -36,67 +37,51 @@ public class AnalysisVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
     }
 
     private Boolean dealWithImports(JmmNode jmmNode, MySymbolTable symbolTable) {
-    /*
-        StringBuilder importPath = new StringBuilder();
+        StringBuilder path = new StringBuilder();
 
-        for (JmmNode child: jmmNode.getChildren()) {
-            importPath.append(child.get("importName"));
-            importPath.append('.');
+        for (JmmNode node : jmmNode.getChildren()) {
+            path.append(node.get("name"));
+            path.append('.');
         }
+        path.deleteCharAt(path.length() -1);
 
-        importPath.deleteCharAt(importPath.length()-1);
-        String importPathString = importPath.toString();
-        if (!symbolTable.getImports().contains(importPathString)) {
-            String lastName = importPathString.substring(importPathString.lastIndexOf('.') + 1);
+        if (!symbolTable.getImports().contains(path.toString())){
+            String last = path.toString().substring(path.toString().lastIndexOf('.')+1);
             Optional<String> match = symbolTable
                     .getImports()
                     .stream()
-                    .filter(s -> s.substring(s.lastIndexOf('.') + 1).equals(lastName))
+                    .filter(s -> s.substring(s.lastIndexOf('.')+1).equals(last))
                     .findAny();
-            if (match.isPresent()) {
 
-                StringBuilder message = new StringBuilder();
-                message.append("a type with the same simple name ");
-                message.append(lastName);
-                message.append(" has already been imported from ");
-                message.append(match.get());
-
-
-
-                //Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("line")), Integer.parseInt(jmmNode.get("col")), message.toString());
-                //reports.add(newReport);
-
+            if (match.isPresent()){
+                Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, 0, 0, defaultMessage);
+                reports.add(newReport);
+                return true;
             }
-            //symbolTable.addImports(importPathString);
+            symbolTable.addImports(path.toString());
         }
-*/
+
         return true;
     }
 
     private Boolean dealWithClass(JmmNode jmmNode, MySymbolTable symbolTable) {
-        //List<Report> reports = new ArrayList<>();
-
         symbolTable.addClassName(jmmNode.get("name"));
-        if(jmmNode.hasAttribute("superClass")) {
+
+
+        if (jmmNode.getAttributes().contains("superClass"))
             symbolTable.addSupers(jmmNode.get("superClass"));
-        }
 
         for (JmmNode node : jmmNode.getChildren()){
-            if (node.getKind().equals("VarDeclaration")) {
-                Type type = utils.getType(node.getJmmChild(0));
-                Symbol symbol = new Symbol(type, node.getJmmChild(0).get("name"));
 
-                if (symbolTable.getFields().stream().anyMatch(s -> s.getName().equals(symbol.getName()))) {
-                    StringBuilder message = new StringBuilder();
-                    message.append("variable ");
-                    message.append(symbol.getName());
-                    message.append(" is already defined in ");
-                    message.append("class");
-                    message.append(" ");
-                    message.append(symbolTable.getClassName());
-                    Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, 0, 0, message.toString());
+            if (node.getKind().equals("varDeclaration")) {
+                Symbol symbol = utils.getSymbol(node);
+
+                // checks whether a symbol with the same name
+                // as the symbol object already exists in the
+                // symbol table's list of fields.
+                if (symbolTable.getFields().stream().anyMatch(s -> s.getName().equals(symbol.getName()))){
+                    Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, 0, 0, defaultMessage);
                     reports.add(newReport);
-                    return false;
                 }
                 else {
                     symbolTable.addFields(symbol);
@@ -106,7 +91,6 @@ public class AnalysisVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
                 visit(node, symbolTable);
             }
         }
-
         return true;
     }
 
@@ -117,42 +101,25 @@ public class AnalysisVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
         List<Symbol> parameters = new ArrayList<>();
         List<Symbol> variables = new ArrayList<>();
 
-        //functionName = jmmNode.get("funcName");
 
         for (JmmNode node : jmmNode.getChildren()) {
 
-            if (node.getKind().equals("Parameter")) {
+            if (node.getKind().equals("parameter")) {
                 Symbol param = new Symbol(utils.getType(node.getJmmChild(0)), node.getJmmChild(0).get("name"));
 
                 if (parameters.stream().anyMatch(s -> s.getName().equals(param.getName()))) {
-
-                    StringBuilder message = new StringBuilder();
-                    message.append("variable ");
-                    message.append(param.getName());
-                    message.append(" is already defined in method ");
-                    message.append(functionName);
-
-                    Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, 0, 0, message.toString());
+                    Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, 0, 0,defaultMessage);
                     reports.add(newReport);
-
                 } else {
                     parameters.add(param);
                 }
             }
 
-            if (node.getKind().equals("VarDeclaration")) {
+            if (node.getKind().equals("varDeclaration")) {
                 Symbol symbol = utils.getSymbol(node);
-                variables.add(symbol);
                 if (Stream.concat(variables.stream(), parameters.stream()).anyMatch(s -> s.getName().equals(symbol.getName()))) {
 
-                    StringBuilder message = new StringBuilder();
-                    message.append("variable ");
-                    message.append(symbol.getName());
-                    message.append(" is already defined in method ");
-                    message.append(functionName);
-
-
-                    Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, 0, 0, message.toString());
+                    Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, 0, 0, defaultMessage);
                     reports.add(newReport);
                 } else {
                     variables.add(symbol);
@@ -161,25 +128,29 @@ public class AnalysisVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
 
         }
 
-        symbolTable.addMethods(functionName, parameters, variables, returnType);
+        StringBuilder method = new StringBuilder();
+        method.append(functionName);
+        for (Symbol parameter: parameters) {
+            method.append("#");
+            method.append(parameter.getType().print());
+        }
+
+        if (symbolTable.getMethods().contains(method.toString())){
+            Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, 0, 0, defaultMessage);
+            reports.add(newReport);
+        }
+        else {
+            symbolTable.addMethods(functionName, parameters, variables, returnType);
+        }
+
+        jmmNode.put("signature", method.toString());
         return true;
     }
 
+    
     private Boolean dealWithMainMethod(JmmNode jmmNode, MySymbolTable symbolTable) {
         List<Symbol> parameters = new ArrayList<>();
         List<Symbol> variables = new ArrayList<>();
-
-        for(JmmNode node : jmmNode.getChildren()) {
-            if(node.getKind().equals("VarDeclaration")) {
-                Symbol symbol = utils.getSymbol(node);
-                variables.add(symbol);
-            }
-
-            if(node.getKind().equals("Parameter")) {
-                Symbol param = new Symbol(utils.getType(node.getJmmChild(0)), node.get("name"));
-                parameters.add(param);
-            }
-        }
 
         symbolTable.addMethods("main", parameters, variables, new Type("void", false));
         return true;
