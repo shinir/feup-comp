@@ -23,16 +23,56 @@ public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
     static final List<String> ARITHMETIC_OP = Arrays.asList("+", "-", "*", "/");
     static final List<String> COMPARISON_OP = List.of("<");
     static final List<String> LOGICAL_OP = List.of("&&");
+
+    private final String defaultMessage = "DEFAULT ERROR MESSAGE";
+    private final List<String> nodeKinds = Arrays.asList("varDeclaration", "Import", "Class", "BinaryOp","returnExpression", "ComparisonOp");
+
+
     private final List<String> types = new ArrayList<>();
     List<Report> reports = new ArrayList<Report>();
 
     @Override
     protected void buildVisitor() {
-        addVisit("VarDeclaration", this::dealWithVarDeclaration);
+        addVisit("Class", this::dealWithClass);
+        addVisit("varDeclaration", this::dealWithVarDeclaration);
         addVisit("BinaryOp", this::dealWithBinaryOp);
         addVisit("ComparisonOp", this::dealWithComparisonOp);
         addVisit("This", this::dealWithThis);
+        addVisit("returnExpression", this::dealWithReturn);
         this.setDefaultVisit(this::myVisitAllChildren);
+    }
+
+    private Boolean dealWithClass(JmmNode jmmNode, MySymbolTable symbolTable) {
+        if (!jmmNode.getAttributes().contains("superClass")){
+            System.out.println("here");
+            return true;
+        }
+
+        String extend = jmmNode.get("superClass");
+        if (jmmNode.get("name").equals(extend)){
+            Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), defaultMessage);
+            reports.add(newReport);
+            return true;
+        }
+
+        boolean findImport = symbolTable
+                .getImports()
+                .stream()
+                .anyMatch(imp -> imp.substring(imp.lastIndexOf(".") +1)
+                        .equals(extend));
+
+        if (findImport){
+            return true;
+        }
+
+        Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), defaultMessage);
+        reports.add(newReport);
+
+        return true;
+    }
+
+    private Boolean dealWithReturn(JmmNode jmmNode, MySymbolTable symbolTable) {
+        return true;
     }
 
     private Boolean myVisitAllChildren(JmmNode jmmNode, MySymbolTable symbolTable) {
@@ -40,10 +80,6 @@ public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
     }
 
     private boolean dealWithBinaryOp(JmmNode jmmNode, MySymbolTable symbolTable) {
-        Type lhsType = utils.getType(jmmNode.getJmmChild(0));
-        Type rhsType = utils.getType(jmmNode.getJmmChild(1));
-
-
         return true;
     }
     private Boolean dealWithComparisonOp(JmmNode jmmNode, MySymbolTable symbolTable) {
@@ -55,8 +91,6 @@ public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
     }
 
     private Boolean dealWithVarDeclaration(JmmNode jmmNode, MySymbolTable symbolTable) {
-        Type type = utils.getType(jmmNode.getJmmChild(0));
-        if(!types.contains(type.getName())) reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0, "Class unknown/not instanced."));
         return true;
     }
 
