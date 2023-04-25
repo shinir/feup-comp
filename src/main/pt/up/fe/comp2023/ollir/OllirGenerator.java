@@ -37,16 +37,16 @@ public class OllirGenerator extends PreorderJmmVisitor<String, String> {
         addVisit("VariableDeclaration", this::varDeclVisit);
         addVisit("MethodDeclaration", this::methodDeclVisit);
         addVisit("MainMethodDeclaration", this::methodDeclVisit);
-        addVisit("MethodCall", this::methodCallVisit);
-        addVisit("NewObj", this::newObjVisit);
-        addVisit("BinOp", this::binOpVisit);
-        addVisit("Assignment", this::assignmentVisit);
-        addVisit("IntegerLiteral", this::intLiteralVisit);
-        addVisit("BooleanLiteral", this::booleanVisit);
-        addVisit("Id", this::idVisit);
-        addVisit("Return", this::returnVisit);
-        addVisit("ExpressionStatement", this::expressionStmtVisit);
-        setDefaultVisit(this::defaultVisit);
+        //addVisit("MethodCall", this::methodCallVisit);
+        //addVisit("NewObj", this::newObjVisit);
+        //addVisit("BinOp", this::binOpVisit);
+        //addVisit("Assignment", this::assignmentVisit);
+        //addVisit("IntegerLiteral", this::intLiteralVisit);
+        //addVisit("BooleanLiteral", this::booleanVisit);
+        //addVisit("Id", this::idVisit);
+        //addVisit("Return", this::returnVisit);
+        //addVisit("ExpressionStatement", this::expressionStmtVisit);
+        //setDefaultVisit(this::defaultVisit);
     }
 
     private String defaultVisit(JmmNode jmmNode, String s) {
@@ -98,13 +98,38 @@ public class OllirGenerator extends PreorderJmmVisitor<String, String> {
         }
         Type type = ollirUtils.getType(varDecl.getJmmChild(0));
 
-        ollirCode.append(".field private ")
-                .append(ollirUtils.getCode(
-                        new Symbol(type, varDecl.get("value"))
-                )).append(";\n");
+        ollirCode.append(".field private ").append(ollirUtils.getCode(new Symbol(type, varDecl.get("value")))).append(";\n");
         return "";
     }
 
+    private String methodDeclVisit(JmmNode methodDecl, String var){
+        ollirCode.append(".method public ");
 
+        if (methodDecl.getKind().equals("MainMethodDeclaration")){
+            ollirCode.append("static ");
+        }
+
+        ollirCode.append(methodDecl.get("name")).append("(");
+
+        var parameters = symbolTable.getParameters(methodDecl.get("name"));
+
+        var parametersCode = parameters.stream().map(ollirUtils::getCode).collect(Collectors.joining(", "));
+
+        //ollirCode.append(parametersCode).append(").").append(ollirUtils.getOllirType(symbolTable.getReturnType())));
+
+        ollirCode.append(" {\n");
+
+        for (JmmNode methodChild: methodDecl.getChildren()) {
+
+        }
+
+        if (methodDecl.getKind().equals("MainMethodDeclaration")) {
+            ollirCode.append("ret.V;\n");
+        }
+
+        ollirCode.append("}\n\n");
+
+        return "";
+    }
 
 }
