@@ -38,7 +38,7 @@ public class AnalysisVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
     }
 
     private Boolean dealWithImports(JmmNode jmmNode, MySymbolTable symbolTable) {
-
+        System.out.println("here");
         StringBuilder imported = new StringBuilder();
         String importString = jmmNode.get("importName");
         for (String path : importString.substring(1 , importString.length() -1 ).replaceAll("\\s+", "").split(",")){
@@ -61,8 +61,9 @@ public class AnalysisVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
                 reports.add(newReport);
                 return true;
             }
-            symbolTable.addImports(importedPath);//must
         }
+        symbolTable.addImports(importedPath);//must
+
 
         return true;
     }
@@ -77,7 +78,7 @@ public class AnalysisVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
         for (var node : jmmNode.getChildren()){
             if (node.getKind().equals("VarDeclaration")) {
                 Type type = utils.getType(node.getJmmChild(0), symbolTable);
-                Symbol symbol = new Symbol(type, node.getJmmChild(0).get("name"));
+                Symbol symbol = new Symbol(type, node.get("name"));
 
                 if (symbolTable.getFields().stream().anyMatch(s -> s.getName().equals(symbol.getName()))) {
                     Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "Variable already defined ");

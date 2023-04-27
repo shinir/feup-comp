@@ -33,12 +33,40 @@ public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
     protected void buildVisitor() {
         addVisit("Class", this::dealWithClass);
         addVisit("VarDeclaration", this::dealWithVarDeclaration);
+        addVisit("CallFunction", this::dealWithCall);
         addVisit("BinaryOp", this::dealWithBinaryOp);
+        addVisit("Variable", this::dealWithVariable);
         addVisit("ComparisonOp", this::dealWithComparisonOp);
         addVisit("Assignment", this::dealWithAssignment);
         addVisit("ArrayAccess", this::dealWithArrayAccess);
         addVisit("This", this::dealWithThis);
         this.setDefaultVisit(this::myVisitAllChildren);
+    }
+
+    private Boolean dealWithCall(JmmNode jmmNode, MySymbolTable symbolTable) {
+        System.out.println(jmmNode);
+
+        jmmNode.getJmmChild(0);
+
+        for (String s : symbolTable.getImports()){
+            if (s.substring(s.lastIndexOf(".") + 1).equals(jmmNode.getJmmChild(0).get("name"))) return true;
+        }
+        Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "Not imported");
+        reports.add(newReport);
+        return true;
+    }
+
+    private Boolean dealWithVariable(JmmNode jmmNode, MySymbolTable symbolTable) {
+        //if (symbolTable.getImports())
+        //System.out.println(symbolTable.getImports());
+        if (jmmNode.getJmmParent().getKind().equals("CallFunction")) return true;
+
+        if (utils.getVariableType(jmmNode, symbolTable) == null){
+            Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "Variable not declared");
+            reports.add(newReport);
+            return true;
+        }
+        return true;
     }
 
     private Boolean dealWithBinaryOp(JmmNode jmmNode, MySymbolTable symbolTable) {
@@ -196,9 +224,7 @@ public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
             Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "Array access not integer.");
             reports.add(newReport);
         }
-        System.out.println("here");
-        System.out.println(jmmNode);
-        System.out.println(jmmNode.getJmmChild(0));
+
         if (!utils.getVariableType(jmmNode.getJmmChild(0), symbolTable).equals(array)){
             Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "Not an array.");
             reports.add(newReport);
