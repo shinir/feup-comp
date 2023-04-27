@@ -18,8 +18,8 @@ public class Analysis implements JmmAnalysis {
     public JmmSemanticsResult semanticAnalysis(JmmParserResult jmmParserResult) {
         MySymbolTable symbolTable = new MySymbolTable();
 
-        var analysisVisitor = new AnalysisVisitor(); //Symbol Table
-        var variableVisitor = new VariableVisitor(); //Semantic
+        var analysisVisitor = new AnalysisVisitor();
+        var variableVisitor = new VariableVisitor();
 
         JmmNode root = jmmParserResult.getRootNode();
 

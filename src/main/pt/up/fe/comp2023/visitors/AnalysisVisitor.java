@@ -1,6 +1,5 @@
 package pt.up.fe.comp2023.visitors;
 
-import org.junit.Test;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNode;
@@ -12,7 +11,6 @@ import pt.up.fe.comp2023.Method;
 import pt.up.fe.comp2023.MySymbolTable;
 import pt.up.fe.comp2023.utils.AnalysisUtils;
 
-import java.awt.desktop.SystemSleepEvent;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -20,25 +18,15 @@ public class AnalysisVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
     private final AnalysisUtils utils = new AnalysisUtils();
     List<Report> reports = new ArrayList<Report>();
     private final List<String> types = new ArrayList<>();
-    private final String defaultMessage = "DEFAULT ERROR MESSAGE";
-    private final List<String> nodeKinds = Arrays.asList("ProgramDeclaration", "Import", "Class");
-    static int count = 0;
 
     @Override
     protected void buildVisitor() {
         addVisit("Program", this::dealWithProgram);
         addVisit("Import", this::dealWithImports);
         addVisit("Class", this::dealWithClass);
-        //addVisit("MethodDeclaration", this::dealWithMethod);
         addVisit("FunctionMethodDeclaration", this::dealWithFunctionMethod);
-        addVisit("MainMethodDeclaration", this::dealWithFunctionMethod);
+        addVisit("MainMethodDeclaration", this::dealWithMainMethod);
         this.setDefaultVisit(this::myVisitAllChildren);
-
-    }
-
-    private Boolean dealWithProgram(JmmNode jmmNode, MySymbolTable symbolTable) {
-        //System.out.println(jmmNode);
-        return true;
     }
 
     private Boolean dealWithProgram(JmmNode jmmNode, MySymbolTable symbolTable) {
@@ -46,14 +34,6 @@ public class AnalysisVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
     }
 
     private Boolean myVisitAllChildren(JmmNode jmmNode, MySymbolTable symbolTable) {
-
-        //System.out.println(jmmNode);
-        /*
-        for (JmmNode child : jmmNode.getChildren()){
-            if (nodeKinds.contains(child.getKind())) continue;
-            //System.out.println(child);
-            //visit(child, symbolTable);
-        }*/
         return true;
     }
 
@@ -147,6 +127,7 @@ public class AnalysisVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
                     parameters.add(param);
                 }
             }
+        }
 
         StringBuilder signature = new StringBuilder();
         signature.append(functionName);
@@ -221,22 +202,7 @@ public class AnalysisVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
             }
         }
 
-        StringBuilder method = new StringBuilder();
-        method.append(functionName);
-        for (Symbol parameter: parameters) {
-            method.append("#");
-            method.append(parameter.getType().print());
-        }
-
-        if (symbolTable.getMethods().contains(method.toString())){
-            Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), defaultMessage);
-            reports.add(newReport);
-        }
-        else {
-            symbolTable.addMethods(functionName, parameters, variables, returnType);
-        }
-
-        jmmNode.put("signature", method.toString());
+        symbolTable.addMethods("main", parameters, variables, new Type("void", false));
         return true;
     }
 
