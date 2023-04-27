@@ -7,6 +7,7 @@ import pt.up.fe.comp.jmm.ast.PreorderJmmVisitor;
 import pt.up.fe.comp.jmm.report.Report;
 import pt.up.fe.comp.jmm.report.ReportType;
 import pt.up.fe.comp.jmm.report.Stage;
+import pt.up.fe.comp2023.Method;
 import pt.up.fe.comp2023.MySymbolTable;
 import pt.up.fe.comp2023.utils.AnalysisUtils;
 
@@ -142,6 +143,41 @@ public class AnalysisVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
         else {
             symbolTable.addMethods(signature.toString(), parameters, variables, returnType);
         }*/
+
+        // CHECK RETURN TYPES
+        if(returnType != null && parameters.isEmpty() && variables.isEmpty()) {
+            if(symbolTable.getImports().isEmpty()) {
+                Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "Class not imported.");
+                reports.add(newReport);
+            }
+            // what if the returnType is a from an imported class?
+            Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "Variable not declared.");
+            reports.add(newReport);
+        }
+
+        /*
+        // CHECK ASSIGNMENTS
+        List<String> types = new ArrayList<>();
+        Boolean check = true;
+        System.out.println(jmmNode.getChildren());
+        for(JmmNode child : jmmNode.getChildren()) {
+            if(child.getKind().equals("VarDeclaration")) {
+                System.out.println(child.getJmmChild(0).getKind());
+                types.add(child.getJmmChild(0).getKind());
+            }
+            if(child.getKind().equals("Assignment")) {
+                System.out.println(child.getJmmChild(0).getKind());
+                for(String type : types) {
+                    if(child.getJmmChild(0).getKind() == type) check = false;
+                }
+            }
+        }
+
+        if(check) {
+            Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "Bad assignment.");
+            reports.add(newReport);
+        }
+        */
 
         symbolTable.addMethods(functionName, parameters, variables, returnType);
 

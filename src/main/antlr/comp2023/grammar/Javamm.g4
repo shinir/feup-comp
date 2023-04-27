@@ -63,8 +63,8 @@ statement
     | 'if' '(' expression ')' statement ('else' statement)? #IfCondition
     | 'while' '(' expression ')' statement #WhileCondition
     | expression ';' #ExprStmt
-    | ID '=' expression ';' #Assignment
-    | ID '[' expression ']' '=' expression ';' #ArrayAssignment
+    | name=ID '=' expression ';' #Assignment
+    | name=ID '[' expression ']' '=' expression ';' #ArrayAssignment
     ;
 
 expression

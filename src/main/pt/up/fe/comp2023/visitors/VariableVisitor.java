@@ -12,6 +12,7 @@ import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.report.Report;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -34,6 +35,8 @@ public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
         addVisit("VarDeclaration", this::dealWithVarDeclaration);
         addVisit("BinaryOp", this::dealWithBinaryOp);
         addVisit("ComparisonOp", this::dealWithComparisonOp);
+        addVisit("Assignment", this::dealWithAssignment);
+        addVisit("ArrayAccess", this::dealWithArrayAccess);
         addVisit("This", this::dealWithThis);
         this.setDefaultVisit(this::myVisitAllChildren);
     }
@@ -144,6 +147,14 @@ public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
         Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "Cant found that class on any import");
         reports.add(newReport);
 
+        for(Symbol field : symbolTable.getFields()) {
+            System.out.println(field);
+        }
+
+        for(Symbol field : symbolTable.getFields()) {
+            System.out.println(field);
+        }
+
         return true;
     }
 
@@ -156,10 +167,33 @@ public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
     }
 
     private Boolean dealWithThis(JmmNode jmmNode, MySymbolTable symbolTable) {
+        if(jmmNode.getAncestor("methodDeclaration").isPresent()) {
+            jmmNode.put("type", "#UNKNOWN");
+            Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "Non static cannot be referenced from a static context.");
+            reports.add(newReport);
+        }
         return true;
     }
 
     private Boolean dealWithVarDeclaration(JmmNode jmmNode, MySymbolTable symbolTable) {
+
+        return true;
+    }
+
+    private Boolean dealWithAssignment(JmmNode jmmNode, MySymbolTable symbolTable) {
+        String name = jmmNode.get("name");
+
+        //for(jmmNode.getHierarchy())
+
+        System.out.println(jmmNode.getJmmParent().getChildren());
+        return true;
+    }
+
+    private Boolean dealWithArrayAccess(JmmNode jmmNode, MySymbolTable symbolTable) {
+        if(!jmmNode.getJmmChild(1).getKind().equals("Integer")) {
+            Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "Array access not integer.");
+            reports.add(newReport);
+        }
         return true;
     }
 
