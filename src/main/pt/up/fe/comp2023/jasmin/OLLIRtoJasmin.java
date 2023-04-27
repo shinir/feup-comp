@@ -91,12 +91,6 @@ public class OLLIRtoJasmin {
 
         for (Instruction instruction : method.getInstructions()) {
             code.append(getCode(method, instruction));
-            if(instruction.getInstType() == InstructionType.CALL) {
-                ElementType type = ((CallInstruction) instruction).getReturnType().getTypeOfElement();
-                if(((CallInstruction) instruction).getInvocationType() == CallType.invokespecial || type != ElementType.VOID) {
-                    code.append("pop\n");
-                }
-            }
         }
 
         code.append(".end method\n");
