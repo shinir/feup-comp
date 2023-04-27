@@ -12,6 +12,7 @@ import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.report.Report;
 
+import java.awt.desktop.SystemEventListener;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,16 +22,6 @@ import java.util.stream.Stream;
 
 public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> {
     private final AnalysisUtils utils = new AnalysisUtils();
-
-    static final List<String> PRIMITIVES = Arrays.asList("int", "void", "boolean");
-    static final List<String> ARITHMETIC_OP = Arrays.asList("+", "-", "*", "/");
-    static final List<String> COMPARISON_OP = List.of("<");
-    static final List<String> LOGICAL_OP = List.of("&&");
-
-    private final String defaultMessage = "DEFAULT ERROR MESSAGE";
-    private final List<String> nodeKinds = Arrays.asList("varDeclaration", "Import", "Class", "BinaryOp","returnExpression", "ComparisonOp");
-
-
     private final List<String> types = new ArrayList<>();
     List<Report> reports = new ArrayList<Report>();
 
@@ -50,18 +41,35 @@ public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
         addVisit("Assignment", this::dealWithAssignment);
         addVisit("ArrayAccess", this::dealWithArrayAccess);
         addVisit("This", this::dealWithThis);
-        addVisit("returnExpression", this::dealWithReturn);
         this.setDefaultVisit(this::myVisitAllChildren);
     }
 
     private Boolean dealWithCall(JmmNode jmmNode, MySymbolTable symbolTable) {
         System.out.println(jmmNode);
 
-        jmmNode.getJmmChild(0);
 
         for (String s : symbolTable.getImports()){
             if (s.substring(s.lastIndexOf(".") + 1).equals(jmmNode.getJmmChild(0).get("name"))) return true;
         }
+        for (Symbol f : symbolTable.getFields()){
+            if (f.getName().equals(jmmNode.getJmmChild(0).get("name"))) return true;
+        }
+
+        String method;
+        JmmNode parent = jmmNode.getJmmParent();
+        while (!parent.getKind().equals("MethodDeclaration")){
+            parent = parent.getJmmParent();
+        }
+        parent = parent.getJmmChild(0);
+        method = parent.get("signature");
+
+        for (Symbol s : symbolTable.getParameters(method)){
+            if (s.getName().equals(jmmNode.getJmmChild(0).get("name"))) return true;
+        }
+        for (Symbol s : symbolTable.getLocalVariables(method)){
+            if (s.getName().equals(jmmNode.getJmmChild(0).get("name"))) return true;
+        }
+
         Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "Not imported");
         reports.add(newReport);
         return true;
@@ -184,14 +192,6 @@ public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
         Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "Cant found that class on any import");
         reports.add(newReport);
 
-        for(Symbol field : symbolTable.getFields()) {
-            //System.out.println(field);
-        }
-
-        for(Symbol field : symbolTable.getFields()) {
-            //System.out.println(field);
-        }
-
         return true;
     }
 
@@ -199,9 +199,6 @@ public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
         return true;
     }
 
-    private boolean dealWithBinaryOp(JmmNode jmmNode, MySymbolTable symbolTable) {
-        return true;
-    }
     private Boolean dealWithComparisonOp(JmmNode jmmNode, MySymbolTable symbolTable) {
         return true;
     }
@@ -222,10 +219,15 @@ public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
 
     private Boolean dealWithAssignment(JmmNode jmmNode, MySymbolTable symbolTable) {
         String name = jmmNode.get("name");
+        System.out.println(jmmNode);
 
-        //for(jmmNode.getHierarchy())
-
-        //System.out.println(jmmNode.getJmmParent().getChildren());
+        Type leftType = utils.getType(jmmNode, symbolTable);
+        Type righType = utils.getType(jmmNode.getJmmChild(0), symbolTable);
+/*
+        if (!leftType.equals(righType)) {
+            Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "Cant do assigment with diferente types.");
+            reports.add(newReport);
+        }*/
         return true;
     }
 

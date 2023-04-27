@@ -17,7 +17,39 @@ public class AnalysisUtils {
     static final List<String> LOGICAL_OP = List.of("&&");
 
     public Type getType(JmmNode jmmNode, SymbolTable symbolTable) {
+/*
+        if (jmmNode.getKind().equals("Assignment")){
 
+            String method;
+            JmmNode parent = jmmNode.getJmmParent();
+            while (!parent.getKind().equals("MethodDeclaration")){
+                parent = parent.getJmmParent();
+            }
+            parent = parent.getJmmChild(0);
+            method = parent.get("signature");
+
+
+            for (Symbol s : symbolTable.getLocalVariables(method)){
+                if (s.getName().equals(jmmNode.get("name"))){
+                    return s.getType();
+                }
+            }
+            for (Symbol s : symbolTable.getParameters(method)){
+                if (s.getName().equals(jmmNode.get("name"))){
+                    return s.getType();
+                }
+            }
+            for (Symbol s : symbolTable.getFields()) {
+                if (s.getName().equals(jmmNode.get("name"))) {
+                    return s.getType();
+                }
+            }
+
+            }
+*/
+        if (jmmNode.getKind().equals("NewArray")){
+            return new Type("int", false);
+        }
         if (jmmNode.getKind().equals("IntegerType")){
             return new Type("int", false);
         }
@@ -27,7 +59,6 @@ public class AnalysisUtils {
             || jmmNode.getKind().equals("ArrayAssignment")){
 
             String method;
-
             JmmNode parent = jmmNode.getJmmParent();
             while (!parent.getKind().equals("MethodDeclaration")){
                 parent = parent.getJmmParent();
@@ -104,7 +135,7 @@ public class AnalysisUtils {
         if (jmmNode.getKind().equals("Integer")){
             return new Type("int", false);
         }
-        if (jmmNode.getKind().equals("Boolean"))
+        if (jmmNode.getKind().equals("Boolean") || jmmNode.getKind().equals("Bool"))
             return new Type("boolean", false);
 
         boolean isArray = jmmNode.hasAttribute("isArray");
