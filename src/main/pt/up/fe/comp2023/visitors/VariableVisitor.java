@@ -12,7 +12,6 @@ import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.report.Report;
 
-import java.awt.desktop.SystemEventListener;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -108,7 +107,7 @@ public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
 
 
         if (leftType.getName().equals("#UNKNOWN")
-            || rightType.getName().equals("#UNKNOWN")){
+                || rightType.getName().equals("#UNKNOWN")){
             jmmNode.put("type", "#UNKNOWN");
             return true;
         }
@@ -123,8 +122,8 @@ public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
         }
 
         if (ARITHMETIC_OP.contains(jmmNode.get("op"))
-            || LOGICAL_OP.contains(jmmNode.get("op"))
-            || COMPARISON_OP.contains(jmmNode.get("op"))){
+                || LOGICAL_OP.contains(jmmNode.get("op"))
+                || COMPARISON_OP.contains(jmmNode.get("op"))){
             if (leftType.isArray()){
                 jmmNode.put("type", "#UNKNOWN");
                 Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "Cannot be applied");
@@ -220,14 +219,9 @@ public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
     private Boolean dealWithAssignment(JmmNode jmmNode, MySymbolTable symbolTable) {
         String name = jmmNode.get("name");
         System.out.println(jmmNode);
+        //for(jmmNode.getHierarchy())
 
-        Type leftType = utils.getType(jmmNode, symbolTable);
-        Type righType = utils.getType(jmmNode.getJmmChild(0), symbolTable);
-/*
-        if (!leftType.equals(righType)) {
-            Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "Cant do assigment with diferente types.");
-            reports.add(newReport);
-        }*/
+        //System.out.println(jmmNode.getJmmParent().getChildren());
         return true;
     }
 
