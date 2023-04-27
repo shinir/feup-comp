@@ -49,7 +49,7 @@ returnExpression
     ;
 
 type
-    : name = 'int' ( isArray='[' ']' )+ #Array
+    : name = 'int' ( isArray='[' ']' )* #Array
     | name = 'boolean' #Boolean
     | name = 'int' #IntegerType
     | name = 'char' #Character
@@ -63,18 +63,18 @@ statement
     | 'if' '(' expression ')' statement ('else' statement)? #IfCondition
     | 'while' '(' expression ')' statement #WhileCondition
     | expression ';' #ExprStmt
-    | name=ID '=' expression ';' #Assignment
-    | name=ID '[' expression ']' '=' expression ';' #ArrayAssignment
+    | ID '=' expression ';' #Assignment
+    | ID '[' expression ']' '=' expression ';' #ArrayAssignment
     ;
 
 expression
     : '!' expression #Not
     | '(' expression ')' #Parenthesis
-    | expression '[' expression ']' #ArrayAccess
     | expression ( op='*' | op='/' ) expression #BinaryOp
     | expression ( op='+' | op='-' ) expression #BinaryOp
     | expression ( op='<' | op='>' | op='<=' | op='>=' | op='==' | op='!=' ) expression #ComparisonOp
     | expression ( op='&&' | op='||' ) expression #BinaryOp
+    | expression '[' expression ']' #ArrayAccess
     | expression '.' 'length' #GetLength
     | expression '.' functName=ID '(' ( expression ( ',' expression )* )? ')' #CallFunction
     | 'new' 'int' '[' expression ']' #NewArray
