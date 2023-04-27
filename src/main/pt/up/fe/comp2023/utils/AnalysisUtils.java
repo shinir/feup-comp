@@ -18,6 +18,10 @@ public class AnalysisUtils {
 
     public Type getType(JmmNode jmmNode, SymbolTable symbolTable) {
 
+        if (jmmNode.getKind().equals("IntegerType")){
+            return new Type("int", false);
+        }
+
         if (jmmNode.getKind().equals("VarDeclaration")
             || jmmNode.getKind().equals("Variable")
             || jmmNode.getKind().equals("ArrayAssignment")){
@@ -41,20 +45,25 @@ public class AnalysisUtils {
             //List<Symbol> vars = symbolTable.getLocalVariables(method);
 
             for (Symbol s : symbolTable.getLocalVariables(method)){
+                System.out.println(s.getName());
                 if (s.getName().equals(jmmNode.get("name"))){
                     return s.getType();
                 }
             }
             for (Symbol s : symbolTable.getParameters(method)){
+                System.out.println(s.getName());
                 if (s.getName().equals(jmmNode.get("name"))){
                     return s.getType();
                 }
             }
             for (Symbol s : symbolTable.getFields()){
+                System.out.println(s.getName());
                 if (s.getName().equals(jmmNode.get("name"))){
                     return s.getType();
                 }
             }
+            return null;
+
         }
 
         if (jmmNode.getKind().equals("CallFunction")){
@@ -146,7 +155,7 @@ public class AnalysisUtils {
             }
 
         }
-        return new Type(null, false);
+        return null;
     }
 
     public Type getArrayAcessType(JmmNode jmmNode, SymbolTable symbolTable){

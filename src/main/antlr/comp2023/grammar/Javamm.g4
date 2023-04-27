@@ -49,7 +49,7 @@ returnExpression
     ;
 
 type
-    : name = 'int' ( isArray='[' ']' )* #Array
+    : name = 'int' ( isArray='[' ']' )+ #Array
     | name = 'boolean' #Boolean
     | name = 'int' #IntegerType
     | name = 'char' #Character
