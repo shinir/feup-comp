@@ -33,13 +33,7 @@ public class AnalysisUtils {
                 parent = parent.getJmmParent();
             }
             parent = parent.getJmmChild(0);
-
-            if (parent.getKind().equals("MainMethodDeclaration")){
-                method = parent.get("name");
-            }
-            else {
-                method = parent.get("funcName");
-            }
+            method = parent.get("signature");
 
 
             //List<Symbol> vars = symbolTable.getLocalVariables(method);
@@ -66,6 +60,10 @@ public class AnalysisUtils {
 
         }
 
+        if (jmmNode.getKind().equals("ArrayAccess")){
+            Type arrayType = new Type( getType(jmmNode.getJmmChild(0), symbolTable).getName(), false);
+            return arrayType;
+        }
         if (jmmNode.getKind().equals("CallFunction")){
             Type returnType = symbolTable.getReturnType(jmmNode.get("name"));
 
@@ -126,40 +124,39 @@ public class AnalysisUtils {
 
     public Type getVariableType(JmmNode jmmNode, SymbolTable symbolTable){
 
-        String variable = jmmNode.get("name");
-        JmmNode parent = jmmNode.getJmmParent();
 
+        String method;
+        JmmNode parent = jmmNode.getJmmParent();
         while (!parent.getKind().equals("MethodDeclaration")){
-            if (jmmNode.getKind().equals("Class")) break;
             parent = parent.getJmmParent();
         }
+        parent = parent.getJmmChild(0);
+        method = parent.get("signature");
 
-        if (parent.getKind().equals("Class")) {
-            String method = parent.get("name");
-            for (Symbol f : symbolTable.getFields()) {
-                if (f.getName().equals(variable)) return f.getType();
+        for (Symbol s : symbolTable.getLocalVariables(method)){
+            System.out.println(s.getName());
+            if (s.getName().equals(jmmNode.get("name"))){
+                return s.getType();
             }
         }
-        else if (parent.getKind().equals("MethodDeclaration")){
-            parent = parent.getJmmChild(0);
-            if (parent.getKind().equals("FunctionMethodDeclaration")){
-                for (Symbol s : symbolTable.getLocalVariables(parent.get("funcName"))) {
-                     if (variable.equals(s.getName())) return s.getType();
-                }
-                for (Symbol s : symbolTable.getParameters(parent.get("funcName"))){
-                    if (variable.equals(s.getName())) return s.getType();
-                }
+        for (Symbol s : symbolTable.getParameters(method)){
+            System.out.println(s.getName());
+            if (s.getName().equals(jmmNode.get("name"))){
+                return s.getType();
             }
-            if (parent.getKind().equals("MainMethodDeclaration")) {
-                return new Type("void", false);
-            }
-
         }
+        for (Symbol s : symbolTable.getFields()){
+            System.out.println(s.getName());
+            if (s.getName().equals(jmmNode.get("name"))){
+                return s.getType();
+            }
+        }
+
         return null;
     }
 
     public Type getArrayAcessType(JmmNode jmmNode, SymbolTable symbolTable){
-        System.out.println(jmmNode);
+        //System.out.println(jmmNode);
 
 
         JmmNode node = jmmNode.getJmmChild(1);

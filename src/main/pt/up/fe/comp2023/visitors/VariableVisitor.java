@@ -42,8 +42,6 @@ public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
     }
 
     private Boolean dealWithBinaryOp(JmmNode jmmNode, MySymbolTable symbolTable) {
-        System.out.println("BINARYOP");
-        System.out.println(jmmNode);
 
         JmmNode left = jmmNode.getJmmChild(0);
         Type leftType = utils.getType(left, symbolTable);
@@ -68,10 +66,10 @@ public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
             return true;
         }
 
-        System.out.println(leftType);
-        System.out.println(rightType);
+        //System.out.println(leftType);
+        //System.out.println(rightType);
 
-        if (!leftType.equals(rightType)){
+        if (!leftType.getName().equals(rightType.getName())){
             jmmNode.put("type", "#UNKNOWN");
             Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "Types dont match");
             reports.add(newReport);
@@ -148,11 +146,11 @@ public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
         reports.add(newReport);
 
         for(Symbol field : symbolTable.getFields()) {
-            System.out.println(field);
+            //System.out.println(field);
         }
 
         for(Symbol field : symbolTable.getFields()) {
-            System.out.println(field);
+            //System.out.println(field);
         }
 
         return true;
@@ -185,15 +183,27 @@ public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
 
         //for(jmmNode.getHierarchy())
 
-        System.out.println(jmmNode.getJmmParent().getChildren());
+        //System.out.println(jmmNode.getJmmParent().getChildren());
         return true;
     }
 
     private Boolean dealWithArrayAccess(JmmNode jmmNode, MySymbolTable symbolTable) {
-        if(!jmmNode.getJmmChild(1).getKind().equals("Integer")) {
+        //System.out.println(jmmNode);
+        Type integer = new Type("int", false);
+        Type array = new Type("int", true);
+
+        if(!utils.getType(jmmNode.getJmmChild(1),symbolTable).equals(integer)) {
             Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "Array access not integer.");
             reports.add(newReport);
         }
+        System.out.println("here");
+        System.out.println(jmmNode);
+        System.out.println(jmmNode.getJmmChild(0));
+        if (!utils.getVariableType(jmmNode.getJmmChild(0), symbolTable).equals(array)){
+            Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "Not an array.");
+            reports.add(newReport);
+        }
+
         return true;
     }
 

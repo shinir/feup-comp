@@ -117,7 +117,7 @@ public class AnalysisVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
             }
 
             if(node.getKind().equals("Parameter")) {
-                Symbol param = new Symbol(utils.getType(node.getJmmChild(0), symbolTable), node.getJmmChild(0).get("name"));
+                Symbol param = new Symbol(utils.getType(node.getJmmChild(0), symbolTable), node.get("name"));
                 if (parameters.stream().anyMatch(s -> s.getName().equals(param.getName()))) {
                     Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "Already defined ");
                     reports.add(newReport);
@@ -136,14 +136,14 @@ public class AnalysisVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
         }
         //String stringSignature = signature.toString();
 
-        /*if (symbolTable.getMethods().contains(signature.toString())){
+        if (symbolTable.getMethods().contains(signature.toString())){
             Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "Already defined method");
             reports.add(newReport);
         }
         else {
             symbolTable.addMethods(signature.toString(), parameters, variables, returnType);
-        }*/
-
+        }
+    /*
         // CHECK RETURN TYPES
         if(returnType != null && parameters.isEmpty() && variables.isEmpty()) {
             if(symbolTable.getImports().isEmpty()) {
@@ -154,7 +154,7 @@ public class AnalysisVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
             Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "Variable not declared.");
             reports.add(newReport);
         }
-
+*/
         /*
         // CHECK ASSIGNMENTS
         List<String> types = new ArrayList<>();
@@ -179,7 +179,7 @@ public class AnalysisVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
         }
         */
 
-        symbolTable.addMethods(functionName, parameters, variables, returnType);
+        //symbolTable.addMethods(functionName, parameters, variables, returnType);
 
         jmmNode.put("signature", signature.toString());
         return true;
