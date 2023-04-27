@@ -308,7 +308,6 @@ public class OLLIRtoJasmin {
             .append(getArgumentsCode(instruction.getListOfOperands()))
             .append(getJasminType(instruction.getReturnType()))
             .append("\n");
-        table.clear();
         return code.toString();
     }
 
