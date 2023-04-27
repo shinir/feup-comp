@@ -330,8 +330,6 @@ public class OLLIRtoJasmin {
             .append(methodName.replace("\"", ""))
             .append(getArgumentsCode(parameters))
             .append(getJasminType(returnType)).append("\n");
-        table.clear();
-        parameters.clear();
         return code.toString();
     }
 
@@ -383,7 +381,6 @@ public class OLLIRtoJasmin {
         }
 
         code.append(")");
-        operands.clear();
         return code.toString();
     }
 
