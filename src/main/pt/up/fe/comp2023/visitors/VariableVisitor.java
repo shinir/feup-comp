@@ -21,6 +21,16 @@ import java.util.stream.Stream;
 
 public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> {
     private final AnalysisUtils utils = new AnalysisUtils();
+
+    static final List<String> PRIMITIVES = Arrays.asList("int", "void", "boolean");
+    static final List<String> ARITHMETIC_OP = Arrays.asList("+", "-", "*", "/");
+    static final List<String> COMPARISON_OP = List.of("<");
+    static final List<String> LOGICAL_OP = List.of("&&");
+
+    private final String defaultMessage = "DEFAULT ERROR MESSAGE";
+    private final List<String> nodeKinds = Arrays.asList("varDeclaration", "Import", "Class", "BinaryOp","returnExpression", "ComparisonOp");
+
+
     private final List<String> types = new ArrayList<>();
     List<Report> reports = new ArrayList<Report>();
 
@@ -40,6 +50,7 @@ public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
         addVisit("Assignment", this::dealWithAssignment);
         addVisit("ArrayAccess", this::dealWithArrayAccess);
         addVisit("This", this::dealWithThis);
+        addVisit("returnExpression", this::dealWithReturn);
         this.setDefaultVisit(this::myVisitAllChildren);
     }
 
@@ -188,6 +199,9 @@ public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
         return true;
     }
 
+    private boolean dealWithBinaryOp(JmmNode jmmNode, MySymbolTable symbolTable) {
+        return true;
+    }
     private Boolean dealWithComparisonOp(JmmNode jmmNode, MySymbolTable symbolTable) {
         return true;
     }
