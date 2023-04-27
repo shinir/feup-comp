@@ -46,29 +46,11 @@ public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
     private Boolean dealWithCall(JmmNode jmmNode, MySymbolTable symbolTable) {
         System.out.println(jmmNode);
 
+        jmmNode.getJmmChild(0);
 
         for (String s : symbolTable.getImports()){
             if (s.substring(s.lastIndexOf(".") + 1).equals(jmmNode.getJmmChild(0).get("name"))) return true;
         }
-        for (Symbol f : symbolTable.getFields()){
-            if (f.getName().equals(jmmNode.getJmmChild(0).get("name"))) return true;
-        }
-
-        String method;
-        JmmNode parent = jmmNode.getJmmParent();
-        while (!parent.getKind().equals("MethodDeclaration")){
-            parent = parent.getJmmParent();
-        }
-        parent = parent.getJmmChild(0);
-        method = parent.get("signature");
-
-        for (Symbol s : symbolTable.getParameters(method)){
-            if (s.getName().equals(jmmNode.getJmmChild(0).get("name"))) return true;
-        }
-        for (Symbol s : symbolTable.getLocalVariables(method)){
-            if (s.getName().equals(jmmNode.getJmmChild(0).get("name"))) return true;
-        }
-
         Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "Not imported");
         reports.add(newReport);
         return true;
@@ -191,6 +173,14 @@ public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
         Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "Cant found that class on any import");
         reports.add(newReport);
 
+        for(Symbol field : symbolTable.getFields()) {
+            //System.out.println(field);
+        }
+
+        for(Symbol field : symbolTable.getFields()) {
+            //System.out.println(field);
+        }
+
         return true;
     }
 
@@ -218,7 +208,7 @@ public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
 
     private Boolean dealWithAssignment(JmmNode jmmNode, MySymbolTable symbolTable) {
         String name = jmmNode.get("name");
-        System.out.println(jmmNode);
+
         //for(jmmNode.getHierarchy())
 
         //System.out.println(jmmNode.getJmmParent().getChildren());
