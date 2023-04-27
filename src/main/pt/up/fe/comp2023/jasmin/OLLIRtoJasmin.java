@@ -126,7 +126,7 @@ public class OLLIRtoJasmin {
         return code.toString();
     }
 
-    private String putField(Element classElement, Element fieldElement) {
+    private String setField(Element classElement, Element fieldElement) {
         StringBuilder code = new StringBuilder();
         String field = ((Operand)fieldElement).getName();
         String name = JasminUtils.getSuperPath(classUnit, ((ClassType)classElement.getType()).getName());
@@ -142,7 +142,7 @@ public class OLLIRtoJasmin {
         // class, field, value
         code.append(getLoad(method.getVarTable(), fieldInstruction.getFirstOperand()));
         code.append(getLoad(method.getVarTable(), fieldInstruction.getThirdOperand()));
-        code.append(putField(fieldInstruction.getFirstOperand(), fieldInstruction.getSecondOperand()));
+        code.append(setField(fieldInstruction.getFirstOperand(), fieldInstruction.getSecondOperand()));
 
         return code.toString();
     }
@@ -222,7 +222,6 @@ public class OLLIRtoJasmin {
                 .append(getLoad(table, instruction.getOperand()))
                 .append("isub\n");
         }
-
         return code.toString();
     }
 
@@ -279,7 +278,6 @@ public class OLLIRtoJasmin {
             }
             return instruction + register + "\n";
         }
-
         return "";
     }
 
@@ -310,7 +308,7 @@ public class OLLIRtoJasmin {
             .append(getArgumentsCode(instruction.getListOfOperands()))
             .append(getJasminType(instruction.getReturnType()))
             .append("\n");
-
+        table.clear();
         return code.toString();
     }
 
@@ -332,7 +330,8 @@ public class OLLIRtoJasmin {
             .append(methodName.replace("\"", ""))
             .append(getArgumentsCode(parameters))
             .append(getJasminType(returnType)).append("\n");
-
+        table.clear();
+        parameters.clear();
         return code.toString();
     }
 
@@ -384,6 +383,7 @@ public class OLLIRtoJasmin {
         }
 
         code.append(")");
+        operands.clear();
         return code.toString();
     }
 
