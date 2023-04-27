@@ -149,7 +149,7 @@ public class OLLIRtoJasmin {
 
     public String getCode(Method method, CallInstruction callInstruction) {
         return switch (callInstruction.getInvocationType()) {
-            case NEW -> getCodeNew(callInstruction, method);
+            case NEW -> getCode(callInstruction, method);
             case invokestatic -> getInvokeStatic(callInstruction, method);
             case invokespecial -> getInvokeSpecial(callInstruction, method);
             case invokevirtual -> getInvokeVirtual(callInstruction, method);
@@ -157,16 +157,16 @@ public class OLLIRtoJasmin {
         };
     }
 
-    public String getCodeNew(CallInstruction callInstruction, Method method) {
+    public String getCode(CallInstruction callInstruction, Method method) {
         StringBuilder code = new StringBuilder();
         String returnType = ((ClassType)callInstruction.getReturnType()).getName();
 
-        code.append(newCall(returnType)).append("dup\n");
+        code.append(call(returnType)).append("dup\n");
 
         return code.toString();
     }
 
-    private String newCall(String className) {
+    private String call(String className) {
         return "new " + JasminUtils.getSuperPath(classUnit, className) + '\n';
     }
 
