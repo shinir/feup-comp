@@ -115,6 +115,28 @@ public class OLLIRtoJasmin {
         return code.toString();
     }
 
+    private String getField(Element classElement, Element fieldElement) {
+        StringBuilder code = new StringBuilder();
+        String field = ((Operand)fieldElement).getName();
+        String name = JasminUtils.getSuperPath(classUnit, ((ClassType)classElement.getType()).getName());
+
+        code.append("getfield ").append(name).append("/");
+        code.append(field).append(" ").append(getJasminType(fieldElement.getType())).append("\n");
+
+        return code.toString();
+    }
+
+    private String setField(Element classElement, Element fieldElement) {
+        StringBuilder code = new StringBuilder();
+        String field = ((Operand)fieldElement).getName();
+        String name = JasminUtils.getSuperPath(classUnit, ((ClassType)classElement.getType()).getName());
+
+        code.append("putfield ").append(name).append("/");
+        code.append(field).append(" ").append(getJasminType(fieldElement.getType())).append("\n");
+
+        return code.toString();
+    }
+
     public String getCode(Method method, PutFieldInstruction fieldInstruction) {
         StringBuilder code = new StringBuilder();
         // class, field, value
@@ -144,11 +166,188 @@ public class OLLIRtoJasmin {
         return code.toString();
     }
 
+    private String call(String className) {
+        return "new " + JasminUtils.getSuperPath(classUnit, className) + '\n';
+    }
+
     public String getCode(Method method, AssignInstruction assignInstruction) {
         StringBuilder code = new StringBuilder();
         String rhs = getOperand(method, assignInstruction.getRhs());
 
         code.append(getStore(assignInstruction.getDest(), rhs, method.getVarTable()));
+
+        return code.toString();
+    }
+
+    private String getStore(Element l, String r, HashMap<String, Descriptor> table) {
+        ElementType type = l.getType().getTypeOfElement();
+        int register = table.get(((Operand) l).getName()).getVirtualReg();
+
+        if (type == ElementType.INT32 || type == ElementType.STRING || type == ElementType.BOOLEAN) {
+            return r + "istore" + store(register);
+        }
+        else if (type == ElementType.OBJECTREF || type == ElementType.THIS || type == ElementType.ARRAYREF) {
+            return r + "astore" + store(register);
+        }
+        return "";
+    }
+
+    private String store(int register) {
+        StringBuilder code = new StringBuilder();
+        if (register >= 0 && register <= 3) {
+            code.append("_");
+        }
+        else {
+            code.append(" ");
+        }
+        return code.toString() + register + "\n";
+    }
+
+    private String getOperand(Method method, Instruction instruction) {
+        return switch (instruction.getInstType()) {
+            case NOPER -> getNoper(method.getVarTable(), (SingleOpInstruction) instruction);
+            case UNARYOPER -> getUnaryOper(method.getVarTable(), (UnaryOpInstruction) instruction);
+            case BINARYOPER -> getBinaryOper(method.getVarTable(), (BinaryOpInstruction) instruction);
+            case CALL -> getCode(method, (CallInstruction) instruction);
+            case GETFIELD -> getCode(method, (GetFieldInstruction) instruction);
+            default -> "\n";
+        };
+    }
+
+    private String getUnaryOper(HashMap<String, Descriptor> table, UnaryOpInstruction instruction) {
+        StringBuilder code = new StringBuilder();
+
+        if (instruction.getOperation().getOpType() == OperationType.NOTB) {
+            code.append(iconst("1"))
+                .append(getLoad(table, instruction.getOperand()))
+                .append("isub\n");
+        }
+        return code.toString();
+    }
+
+    private String getBinaryOper(HashMap<String, Descriptor> table, BinaryOpInstruction instruction) {
+        StringBuilder code = new StringBuilder();
+
+        code.append(getLoad(table, instruction.getLeftOperand()))
+            .append(getLoad(table, instruction.getRightOperand()));
+
+        switch (instruction.getOperation().getOpType()) {
+            case ADD -> code.append("iadd\n");
+            case SUB -> code.append("isub\n");
+            case MUL, ANDB -> code.append("imul\n");
+            case DIV -> code.append("idiv\n");
+            case OR -> code.append("ior\n");
+            default -> code.append("");
+        }
+        return code.toString();
+    }
+
+    private String getNoper(HashMap<String, Descriptor> table, SingleOpInstruction instruction) {
+        Element element = instruction.getSingleOperand();
+        return getLoad(table, element);
+    }
+
+    private String getLoad(HashMap<String, Descriptor> table, Element element) {
+        ElementType type = element.getType().getTypeOfElement();
+        // iconst
+        if (element.isLiteral()) {
+            return iconst(((LiteralElement) element).getLiteral());
+        }
+
+        // iload
+        if (type == ElementType.INT32 || type == ElementType.STRING || type == ElementType.BOOLEAN) {
+            int register = table.get(((Operand) element).getName()).getVirtualReg();
+            String instruction = "iload";
+            if (register >= 0 && register <= 3) {
+                instruction = instruction + "_";
+            }
+            else {
+                instruction = instruction + " ";
+            }
+            return instruction + register + "\n";
+        }
+
+        // aload
+        if (type == ElementType.OBJECTREF || type == ElementType.ARRAYREF || type == ElementType.THIS) {
+            int register = table.get(((Operand) element).getName()).getVirtualReg();
+            String instruction = "aload";
+            if (register >= 0 && register <= 3) {
+                instruction = instruction + "_";
+            } else {
+                instruction = instruction + " ";
+            }
+            return instruction + register + "\n";
+        }
+        return "";
+    }
+
+    private String iconst(String numS) {
+        int numI = Integer.parseInt(numS);
+        String code = "";
+        if (numI == -1) code = "iconst_m1";
+        else if (numI >= 0 && numI <= 5) code = "iconst_" + numS;
+        else if (numI >= -128 && numI <= 127) code = "bipush " + numS;
+        else if (numI >= -32768 && numI <= 32767) code = "sipush " + numS;
+        else code = "ldc " + numS;
+        return code + "\n";
+    }
+
+    public String getInvokeStatic(CallInstruction instruction, Method method) {
+        StringBuilder code = new StringBuilder();
+        HashMap<String, Descriptor> table = method.getVarTable();
+
+        for (Element parameter : instruction.getListOfOperands()) {
+            code.append(getLoad(table, parameter));
+        }
+
+        String methodClass = ((Operand) instruction.getFirstArg()).getName();
+
+        code.append("invokestatic ")
+            .append(JasminUtils.getSuperPath(classUnit, methodClass)).append("/")
+            .append(((LiteralElement) instruction.getSecondArg()).getLiteral().replace("\"", ""))
+            .append(getArgumentsCode(instruction.getListOfOperands()))
+            .append(getJasminType(instruction.getReturnType()))
+            .append("\n");
+        return code.toString();
+    }
+
+    public String getInvokeSpecial(CallInstruction instruction, Method method) {
+        StringBuilder code = new StringBuilder();
+        HashMap<String, Descriptor> table = method.getVarTable();
+        ArrayList<Element> parameters = instruction.getListOfOperands();
+        String methodName = ((LiteralElement) instruction.getSecondArg()).getLiteral().replace("\"", "");
+        String className = JasminUtils.getSuperPath(classUnit, ((ClassType) instruction.getFirstArg().getType()).getName());
+        Type returnType = instruction.getReturnType();
+
+        for (Element parameter : parameters) {
+            code.append(getLoad(table, parameter));
+        }
+
+        code.append(getLoad(table, instruction.getFirstArg()));
+
+        code.append("invokespecial ").append(className).append("/")
+            .append(methodName.replace("\"", ""))
+            .append(getArgumentsCode(parameters))
+            .append(getJasminType(returnType)).append("\n");
+        return code.toString();
+    }
+
+    public String getInvokeVirtual(CallInstruction instruction, Method method) {
+        HashMap<String, Descriptor> table = method.getVarTable();
+        StringBuilder code = new StringBuilder();
+        String methodName = ((LiteralElement) instruction.getSecondArg()).getLiteral().replace("\"", "");
+        String className = JasminUtils.getSuperPath(classUnit, ((ClassType) instruction.getFirstArg().getType()).getName());
+        Type returnType = instruction.getReturnType();
+
+        code.append(getLoad(table, instruction.getFirstArg()));
+        for (Element parameter : instruction.getListOfOperands()) {
+            code.append(getLoad(table, parameter));
+        }
+
+        code.append("invokevirtual ").append(className).append("/")
+            .append(methodName.replace("\"", ""))
+            .append(getArgumentsCode(instruction.getListOfOperands()))
+            .append(getJasminType(returnType)).append("\n");
 
         return code.toString();
     }
@@ -172,211 +371,11 @@ public class OLLIRtoJasmin {
         return "return\n";
     }
 
-    private String getField(Element classElement, Element fieldElement) {
-        StringBuilder code = new StringBuilder();
-        String field = ((Operand)fieldElement).getName();
-        String name = JasminUtils.getSuperPath(classUnit, ((ClassType)classElement.getType()).getName());
-
-        code.append("getfield ").append(name).append("/");
-        code.append(field).append(" ").append(getJasminType(fieldElement.getType())).append("\n");
-
-        return code.toString();
-    }
-
-    private String setField(Element classElement, Element fieldElement) {
-        StringBuilder code = new StringBuilder();
-        String field = ((Operand)fieldElement).getName();
-        String name = JasminUtils.getSuperPath(classUnit, ((ClassType)classElement.getType()).getName());
-
-        code.append("putfield ").append(name).append("/");
-        code.append(field).append(" ").append(getJasminType(fieldElement.getType())).append("\n");
-
-        return code.toString();
-    }
-
-    private String call(String className) {
-        String out = JasminUtils.getSuperPath(classUnit, className);
-        return "new " + out +  '\n';
-    }
-
-    private String getStore(Element l, String r, HashMap<String, Descriptor> hash) {
-        ElementType type = l.getType().getTypeOfElement();
-        int reg = hash.get(((Operand) l).getName()).getVirtualReg();
-
-        if (type == ElementType.INT32 || type == ElementType.STRING || type == ElementType.BOOLEAN) {
-            return r + "istore" + store(reg);
-        }
-        else if (type == ElementType.OBJECTREF || type == ElementType.THIS || type == ElementType.ARRAYREF) {
-            return r + "astore" + store(reg);
-        }
-        return "";
-    }
-
-    private String store(int reg) {
-        StringBuilder code = new StringBuilder();
-        if (reg >= 0 && reg <= 3) {
-            code.append("_");
-        }
-        else {
-            code.append(" ");
-        }
-        return code.toString() + reg + "\n";
-    }
-
-    private String getOperand(Method method, Instruction instruction) {
-        return switch (instruction.getInstType()) {
-            case NOPER -> getNoper(method.getVarTable(), (SingleOpInstruction) instruction);
-            case UNARYOPER -> getUnary(method.getVarTable(), (UnaryOpInstruction) instruction);
-            case BINARYOPER -> getBinary(method.getVarTable(), (BinaryOpInstruction) instruction);
-            case CALL -> getCode(method, (CallInstruction) instruction);
-            case GETFIELD -> getCode(method, (GetFieldInstruction) instruction);
-            default -> "\n";
-        };
-    }
-
-    private String getNoper(HashMap<String, Descriptor> hash, SingleOpInstruction instruction) {
-        Element element = instruction.getSingleOperand();
-        return getLoad(hash, element);
-    }
-
-    private String getUnary(HashMap<String, Descriptor> hash, UnaryOpInstruction instruction) {
-        StringBuilder code = new StringBuilder();
-
-        if (instruction.getOperation().getOpType() == OperationType.NOTB) {
-            code.append(iconst("1"))
-                .append(getLoad(hash, instruction.getOperand()))
-                .append("isub\n");
-        }
-        return code.toString();
-    }
-
-    private String getBinary(HashMap<String, Descriptor> hash, BinaryOpInstruction instruction) {
-        StringBuilder code = new StringBuilder();
-
-        code.append(getLoad(hash, instruction.getLeftOperand()))
-            .append(getLoad(hash, instruction.getRightOperand()));
-
-        switch (instruction.getOperation().getOpType()) {
-            case ADD -> code.append("iadd\n");
-            case SUB -> code.append("isub\n");
-            case MUL, ANDB -> code.append("imul\n");
-            case DIV -> code.append("idiv\n");
-            case OR -> code.append("ior\n");
-            default -> code.append("");
-        }
-        return code.toString();
-    }
-
-    private String getLoad(HashMap<String, Descriptor> hash, Element element) {
-        ElementType type = element.getType().getTypeOfElement();
-        // iconst
-        if (element.isLiteral()) {
-            return iconst(((LiteralElement) element).getLiteral());
-        }
-
-        // iload
-        if (type == ElementType.INT32 || type == ElementType.STRING || type == ElementType.BOOLEAN) {
-            int reg = hash.get(((Operand) element).getName()).getVirtualReg();
-            String instruction = "iload";
-            if (reg >= 0 && reg <= 3) {
-                instruction = instruction + "_";
-            }
-            else {
-                instruction = instruction + " ";
-            }
-            return instruction + reg + "\n";
-        }
-
-        // aload
-        if (type == ElementType.OBJECTREF || type == ElementType.ARRAYREF || type == ElementType.THIS) {
-            int reg = hash.get(((Operand) element).getName()).getVirtualReg();
-            String instruction = "aload";
-            if (reg >= 0 && reg <= 3) {
-                instruction = instruction + "_";
-            } else {
-                instruction = instruction + " ";
-            }
-            return instruction + reg + "\n";
-        }
-        return "";
-    }
-
-    private String iconst(String num) {
-        int numI = Integer.parseInt(num);
-        String code = "";
-        if (numI == -1) code = "iconst_m1";
-        else if (numI >= 0 && numI <= 5) code = "iconst_" + num;
-        else if (numI >= -128 && numI <= 127) code = "bipush " + num;
-        else if (numI >= -32768 && numI <= 32767) code = "sipush " + num;
-        else code = "ldc " + num;
-        return code + "\n";
-    }
-
-    public String getInvokeStatic(CallInstruction instruction, Method method) {
-        StringBuilder code = new StringBuilder();
-        HashMap<String, Descriptor> hash = method.getVarTable();
-
-        for (Element parameter : instruction.getListOfOperands()) {
-            code.append(getLoad(hash, parameter));
-        }
-
-        String methodClass = ((Operand) instruction.getFirstArg()).getName();
-
-        code.append("invokestatic ")
-            .append(JasminUtils.getSuperPath(classUnit, methodClass)).append("/")
-            .append(((LiteralElement) instruction.getSecondArg()).getLiteral().replace("\"", ""))
-            .append(getArguments(instruction.getListOfOperands()))
-            .append(getJasminType(instruction.getReturnType()))
-            .append("\n");
-        return code.toString();
-    }
-
-    public String getInvokeSpecial(CallInstruction instruction, Method method) {
-        StringBuilder code = new StringBuilder();
-        HashMap<String, Descriptor> hash = method.getVarTable();
-        ArrayList<Element> parameters = instruction.getListOfOperands();
-        String methodName = ((LiteralElement) instruction.getSecondArg()).getLiteral().replace("\"", "");
-        String className = JasminUtils.getSuperPath(classUnit, ((ClassType) instruction.getFirstArg().getType()).getName());
-        Type returnType = instruction.getReturnType();
-
-        for (Element parameter : parameters) {
-            code.append(getLoad(hash, parameter));
-        }
-
-        code.append(getLoad(hash, instruction.getFirstArg()));
-
-        code.append("invokespecial ").append(className).append("/")
-            .append(methodName.replace("\"", ""))
-            .append(getArguments(parameters))
-            .append(getJasminType(returnType)).append("\n");
-        return code.toString();
-    }
-
-    public String getInvokeVirtual(CallInstruction instruction, Method method) {
-        HashMap<String, Descriptor> hash = method.getVarTable();
-        StringBuilder code = new StringBuilder();
-        String methodName = ((LiteralElement) instruction.getSecondArg()).getLiteral().replace("\"", "");
-        String className = JasminUtils.getSuperPath(classUnit, ((ClassType) instruction.getFirstArg().getType()).getName());
-        Type returnType = instruction.getReturnType();
-
-        code.append(getLoad(hash, instruction.getFirstArg()));
-        for (Element parameter : instruction.getListOfOperands()) {
-            code.append(getLoad(hash, parameter));
-        }
-
-        code.append("invokevirtual ").append(className).append("/")
-            .append(methodName.replace("\"", ""))
-            .append(getArguments(instruction.getListOfOperands()))
-            .append(getJasminType(returnType)).append("\n");
-
-        return code.toString();
-    }
-
-    private String getArguments(ArrayList<Element> elements) {
+    private String getArgumentsCode(ArrayList<Element> operands) {
         StringBuilder code = new StringBuilder();
         code.append("(");
 
-        for (Element argument : elements) {
+        for (Element argument : operands) {
             code.append(getJasminType(argument.getType()));
         }
 
@@ -394,13 +393,13 @@ public class OLLIRtoJasmin {
         return getJasminType(type.getTypeOfElement());
     }
 
-    public String getJasminType(ElementType elementType) {
-        return switch (elementType) {
+    public String getJasminType(ElementType type) {
+        return switch (type) {
             case INT32 -> "I";
             case STRING -> "Ljava/lang/String;";
             case VOID -> "V";
             case BOOLEAN -> "Z";
-            default -> throw new NotImplementedException(elementType);
+            default -> throw new NotImplementedException(type);
         };
     }
 }
