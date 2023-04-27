@@ -26,12 +26,10 @@ public class Analysis implements JmmAnalysis {
         analysisVisitor.visit( root, symbolTable );
         variableVisitor.visit( root, symbolTable );
 
-        List<Report> reports = new ArrayList<Report>();
+        List<Report> reports = SpecsCollections.concat(analysisVisitor.getReports(), variableVisitor.getReports());
 
-        //VariableVisitor.visit(root, symbolTable);
         System.out.println("SymbolTable: \n" + symbolTable.print());
 
-        reports = SpecsCollections.concat(analysisVisitor.getReports(), variableVisitor.getReports());
 
         return new JmmSemanticsResult(jmmParserResult, symbolTable, reports);
     }
