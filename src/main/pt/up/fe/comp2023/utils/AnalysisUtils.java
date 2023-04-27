@@ -27,7 +27,6 @@ public class AnalysisUtils {
             || jmmNode.getKind().equals("ArrayAssignment")){
 
             String method;
-
             JmmNode parent = jmmNode.getJmmParent();
             while (!parent.getKind().equals("MethodDeclaration")){
                 parent = parent.getJmmParent();
