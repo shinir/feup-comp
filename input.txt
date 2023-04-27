@@ -1,28 +1,17 @@
-import io;
+class CompileAssignment {
 
-class MethodsAndFields{
-	int field1;
-	boolean field2;
-	MethodsAndFields field3;
+    public static void main(String[] args) {
 
-	public int getField1(){
-		return field1;
-	}
+    }
 
-	public boolean getField2(){
-		return field2;
-	}
+    public int foo() {
+        int a;
+        boolean b;
 
-	public MethodsAndFields getField3(){
-		return field3;
-	}
+        b = 2;
 
-	public int[] all(int a, boolean b, MethodsAndFields maf){
-		int[] c;
-		return c;
-	}
+        a = b;
 
-	public static void main(String[] args){
-
-	}
+        return 0;
+    }
 }

@@ -20,7 +20,7 @@ public class ollirUtils {
     }
 
     public static String getCode(Symbol symbol) {
-        return symbol.getName() + "." + getType((JmmNode) symbol.getType());
+        return symbol.getName() + "." + getCode(symbol.getType(),false);
     }
 
     public static String getCode(Type type, Boolean indexed) {

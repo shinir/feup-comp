@@ -31,7 +31,7 @@ public class AnalysisVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
     }
 
     private Boolean dealWithImports(JmmNode jmmNode, MySymbolTable symbolTable) {
-        symbolTable.addImports("." + jmmNode.get("importName"));
+        symbolTable.addImports(jmmNode.get("ID"));
         return true;
     }
 
