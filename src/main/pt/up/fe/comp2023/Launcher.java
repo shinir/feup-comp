@@ -6,10 +6,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import pt.up.fe.comp.TestUtils;
+import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
+import pt.up.fe.comp.jmm.ollir.OllirResult;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
 import pt.up.fe.comp.jmm.report.Report;
 import pt.up.fe.comp.jmm.report.ReportType;
 import pt.up.fe.comp.jmm.report.Stage;
+import pt.up.fe.comp2023.ollir.JmmOptimize;
 import pt.up.fe.specs.util.SpecsIo;
 import pt.up.fe.specs.util.SpecsLogs;
 import pt.up.fe.specs.util.SpecsSystem;
@@ -33,7 +36,7 @@ public class Launcher {
 
         // Read contents of input file
         String code = SpecsIo.read(inputFile);
-
+        code = SpecsIo.read("test/pt/up/fe/comp/cp2/ollir/CompileBasic.jmm");
         // Instantiate JmmParser
         SimpleParser parser = new SimpleParser();
 
@@ -44,6 +47,14 @@ public class Launcher {
 
         // Check if there are parsing errors
         TestUtils.noErrors(parserResult.getReports());
+
+        Analysis analysis = new Analysis();
+        JmmSemanticsResult semanticsResult = analysis.semanticAnalysis(parserResult);
+
+        JmmOptimize optimizer = new JmmOptimize();
+        OllirResult ollirResult = optimizer.toOllir(semanticsResult);
+
+        System.out.println(ollirResult.getOllirCode());
 
         /*
         if(TestUtils.getNumErrors(parserResult.getReports()) != 0) {

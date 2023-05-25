@@ -48,8 +48,8 @@ returnExpression
     : expression
     ;
 
-type
-    : name = 'int' ( isArray='[' ']' )* #Array
+type locals[boolean isArray = false]
+    : name = 'int' '[' ']' {$isArray = true;} #Array
     | name = 'boolean' #Boolean
     | name = 'int' #IntegerType
     | name = 'char' #Character
@@ -63,8 +63,8 @@ statement
     | 'if' '(' expression ')' statement ('else' statement)? #IfCondition
     | 'while' '(' expression ')' statement #WhileCondition
     | expression ';' #ExprStmt
-    | ID '=' expression ';' #Assignment
-    | ID '[' expression ']' '=' expression ';' #ArrayAssignment
+    | value = ID '=' expression ';' #Assignment
+    | value = ID '[' expression ']' '=' expression ';' #ArrayAssignment
     ;
 
 expression

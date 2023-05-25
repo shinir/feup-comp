@@ -1,27 +1,23 @@
+import ioPlus;
+class ArrayAccess {
 
-class MethodsAndFields{
-	int field1;
-	boolean field2;
-	MethodsAndFields field3;
+	public int foo(int[] a) {
+		int result;
 
-	public int getField1(){
-		return field1;
+		result = a[0];
+		result = a[1] + a[2];
+		result = result + a[3];
+		result = 1 + a[4];
+
+	    a[0] = 1;
+		a[1] = 2;
+		a[2] = 3;
+		a[3] = 4;
+		a[4] = 5;
+
+
+		return result;
 	}
 
-	public boolean getField2(){
-		return field2;
-	}
 
-	public MethodsAndFields getField3(){
-		return field3;
-	}
-
-	public int[] all(int a, boolean b, MethodsAndFields maf){
-		int[] c;
-		return c;
-	}
-
-	public static void main(String[] args){
-
-	}
 }

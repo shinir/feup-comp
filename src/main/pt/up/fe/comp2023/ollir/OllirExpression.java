@@ -13,6 +13,4 @@ public class OllirExpression {
         this.value = "";
         this.prefix = "";
     }
-
-
 }

@@ -73,7 +73,7 @@ public class AnalysisVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
 
         for (JmmNode node : jmmNode.getChildren()){
 
-            if (node.getKind().equals("varDeclaration")) {
+            if (node.getKind().equals("VarDeclaration")) {
                 Symbol symbol = utils.getSymbol(node);
 
                 // checks whether a symbol with the same name
@@ -114,7 +114,7 @@ public class AnalysisVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
 
         for (JmmNode node : jmmNode.getChildren()) {
 
-            if (node.getKind().equals("parameter")) {
+            if (node.getKind().equals("Parameter")) {
                 Symbol param = new Symbol(utils.getType(node.getJmmChild(0)), node.getJmmChild(0).get("name"));
 
                 if (parameters.stream().anyMatch(s -> s.getName().equals(param.getName()))) {
@@ -125,7 +125,7 @@ public class AnalysisVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
                 }
             }
 
-            if (node.getKind().equals("varDeclaration")) {
+            if (node.getKind().equals("VarDeclaration")) {
                 Symbol symbol = utils.getSymbol(node);
                 if (Stream.concat(variables.stream(), parameters.stream()).anyMatch(s -> s.getName().equals(symbol.getName()))) {
 
@@ -133,6 +133,7 @@ public class AnalysisVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
                     reports.add(newReport);
                 } else {
                     variables.add(symbol);
+                    System.out.println("variabldxmcsnes" + variables);
                 }
             }
 

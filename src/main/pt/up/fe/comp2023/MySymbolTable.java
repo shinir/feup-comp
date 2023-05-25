@@ -65,11 +65,13 @@ public class MySymbolTable implements SymbolTable {
 
     @Override
     public List<Symbol> getParameters(String s) {
+        if (this.functMethods.get(s) == null) return new ArrayList<>();
         return this.functMethods.get(s).getParameters();
     }
 
     @Override
     public List<Symbol> getLocalVariables(String s) {
+        if (this.functMethods.get(s) == null) return new ArrayList<>();
         return this.functMethods.get(s).getLocalVariables();
     }
 }
