@@ -109,6 +109,8 @@ public class OLLIRtoJasmin {
         if (instruction instanceof CallInstruction) return getCode(method, (CallInstruction) instruction);
         if (instruction instanceof GetFieldInstruction) return getCode(method, (GetFieldInstruction) instruction);
         if (instruction instanceof PutFieldInstruction) return getCode(method, (PutFieldInstruction) instruction);
+        if (instruction instanceof CondBranchInstruction) return getCode(method, (CondBranchInstruction) instruction);
+        if (instruction instanceof GotoInstruction) return getCode(method, (GotoInstruction) instruction);
         if (instruction instanceof ReturnInstruction) return getCode(method, (ReturnInstruction) instruction);
         throw new NotImplementedException(instruction.getClass());
     }
@@ -177,6 +179,18 @@ public class OLLIRtoJasmin {
             return code.toString();
         }
         return "return\n";
+    }
+
+    public String getCode(Method method, CondBranchInstruction Instruction) {
+        StringBuilder code = new StringBuilder();
+        code.append("if here\n");
+        return code.toString();
+    }
+
+    public String getCode(Method method, GotoInstruction instruction) {
+        StringBuilder code = new StringBuilder();
+        code.append("goto ").append(instruction.getLabel()).append("\n");
+        return code.toString();
     }
 
     private String getField(Element classElement, Element fieldElement) {
