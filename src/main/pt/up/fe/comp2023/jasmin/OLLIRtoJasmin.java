@@ -89,6 +89,8 @@ public class OLLIRtoJasmin {
         code.append(params).append(")").append(getJasminType(method.getReturnType())).append("\n");
         code.append(".limit stack 99\n").append(".limit locals 99\n");
 
+        //HashMap<String, Instruction> methodLabels = method.getLabels();
+
         for (Instruction instruction : method.getInstructions()) {
             code.append(getCode(method, instruction));
             if(instruction.getInstType().equals(InstructionType.CALL)) {
@@ -97,7 +99,6 @@ public class OLLIRtoJasmin {
                     code.append("pop\n");
                 }
             }
-
         }
 
         code.append(".end method\n");
@@ -181,9 +182,10 @@ public class OLLIRtoJasmin {
         return "return\n";
     }
 
-    public String getCode(Method method, CondBranchInstruction Instruction) {
+    public String getCode(Method method, CondBranchInstruction instruction) {
         StringBuilder code = new StringBuilder();
-        code.append("if here\n");
+        String noper = getNoper(method.getVarTable(), (SingleOpInstruction) instruction.getCondition());
+        code.append(noper).append("ifne").append(instruction.getLabel()).append("\n");
         return code.toString();
     }
 
