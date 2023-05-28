@@ -33,58 +33,7 @@ public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
         addVisit("This", this::dealWithThis);
         addVisit("CallFunction", this::dealWithFuncCall);
         addVisit("Assignment", this::dealWithAssigment);
-        addVisit("Not", this::dealWithNot);
-        addVisit("ArrayAccess", this::dealWithArrayAccess);
-        addVisit("GetLength", this::dealWithLength);
-        addVisit("NewArray", this::dealWithNewArray);
         this.setDefaultVisit(this::myVisitAllChildren);
-    }
-
-    private Boolean dealWithNewArray(JmmNode jmmNode, MySymbolTable symbolTable) {
-        Type type = utils.getType(jmmNode.getJmmChild(0),symbolTable);
-        if (type.isArray() || !type.getName().equals("int")){
-            Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "Expression must be an Integer to apply to an Array");
-            reports.add(newReport);
-            return false;
-        }
-        return true;
-    }
-
-    private Boolean dealWithLength(JmmNode jmmNode, MySymbolTable symbolTable) {
-        Type type = utils.getType(jmmNode.getJmmChild(0), symbolTable);
-        if (!type.isArray()){
-            Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "Expression must be an Array to use length");
-            reports.add(newReport);
-            return false;
-        }
-        return true;
-    }
-
-    private Boolean dealWithArrayAccess(JmmNode jmmNode, MySymbolTable symbolTable) {
-        Type left = utils.getType(jmmNode.getJmmChild(0), symbolTable);
-        Type right = utils.getType(jmmNode.getJmmChild(1), symbolTable);
-
-        if (!left.isArray()){
-            Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "Expression must be an Array");
-            reports.add(newReport);
-            return false;
-        }
-        if (!right.getName().equals("int") || right.isArray()){
-            Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "Array index should be integer");
-            reports.add(newReport);
-            return false;
-        }
-        return true;
-    }
-
-    private Boolean dealWithNot(JmmNode jmmNode, MySymbolTable symbolTable) {
-        Type type = utils.getType(jmmNode.getJmmChild(0), symbolTable);
-        if (!type.getName().equals("boolean") || type.isArray() ){
-            Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "Not (!) must me applied to boolean expression");
-            reports.add(newReport);
-            return false;
-        }
-        return true;
     }
 
     private Boolean dealWithAssigment(JmmNode jmmNode, MySymbolTable symbolTable) {
@@ -149,33 +98,16 @@ public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
     }
 
     private boolean dealWithBinaryOp(JmmNode jmmNode, MySymbolTable symbolTable) {
-        Type lhsType = utils.getType(jmmNode.getJmmChild(0), symbolTable);
-        Type rhsType = utils.getType(jmmNode.getJmmChild(1), symbolTable);
+        //Type lhsType = utils.getType(jmmNode.getJmmChild(0));
+        //Type rhsType = utils.getType(jmmNode.getJmmChild(1));
 
-        if (ARITHMETIC_OP.contains(jmmNode.get("op")) || COMPARISON_OP.contains(jmmNode.get("op"))){
-            if (!lhsType.getName().equals("int")
-                    || !rhsType.getName().equals("int")
-                    || lhsType.isArray()
-                    || rhsType.isArray()){
-                Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "Arithmetic operations can only be realized with integer expression");
-                reports.add(newReport);
-                return false;
-            }
-        }
-        else {
-            if (!lhsType.getName().equals("boolean")
-                    || !rhsType.getName().equals("boolean")
-                    || lhsType.isArray()
-                    || rhsType.isArray()){
-                Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "Arithmetic operations can only be realized with integer expression");
-                reports.add(newReport);
-                return false;
-            }
-        }
+        /*if (lhsType.getName().equals("#UNKNOWN") || rhsType.getName().equals("#UNKNOWN")) {
+            jmmNode.put("type", "#UNKNOWN");
+            return true;
+        }*/
 
         return true;
     }
-
     private Boolean dealWithComparisonOp(JmmNode jmmNode, MySymbolTable symbolTable) {
         return true;
     }

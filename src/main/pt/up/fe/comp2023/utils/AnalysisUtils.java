@@ -26,18 +26,13 @@ public class AnalysisUtils {
 
 
         if (jmmNode.getKind().equals("VarDeclaration")){
-            JmmNode type = jmmNode.getJmmChild(0);
-            return new Type(type.get("name"), type.hasAttribute("isArray") && type.get("isArray").equals("false"));
-        }
-        if (jmmNode.getKind().equals("MethodDeclaration")){
-            return getType(jmmNode.getJmmChild(0), symbolTable);
+            //symbol table check
         }
         if (jmmNode.getKind().equals("MainMethodDeclaration")){
             return new Type("void", false);
         }
         if (jmmNode.getKind().equals("FunctionMethodDeclaration")){
-            JmmNode type = jmmNode.getJmmChild(0);
-            return new Type(type.get("name"), type.hasAttribute("isArray") && type.get("isArray").equals("false"));
+            //symbol table
         }
         if (jmmNode.getKind().equals("Assignment")){
             JmmNode node = jmmNode;
@@ -78,13 +73,15 @@ public class AnalysisUtils {
                     return symbol.getType();
                 }
             }
+
         }
         if (jmmNode.getKind().equals("Parameter")){
             JmmNode type = jmmNode.getJmmChild(0);
             return new Type(type.get("name"), type.hasAttribute("isArray") && type.get("isArray").equals("false"));
+
         }
-        if (jmmNode.getKind().equals("ReturnExpression")){
-            return getType(jmmNode.getJmmChild(0), symbolTable);
+        if (jmmNode.getKind().equals("Parameter")){
+            //symbol table
         }
         if (jmmNode.getKind().equals("Not")){
             return new Type("boolean", false);
@@ -128,7 +125,7 @@ public class AnalysisUtils {
             if (node.hasAttribute("funcName")){
 
                 List<Symbol> parameters = new ArrayList<>();
-                for (JmmNode child : node.getChildren()){
+                for (JmmNode child : jmmNode.getChildren()){
                     if (child.getKind().equals("Parameter")){
                         Symbol symbol = this.getSymbol(child);
                         parameters.add(symbol);
