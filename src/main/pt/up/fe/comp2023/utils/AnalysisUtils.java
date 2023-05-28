@@ -91,13 +91,26 @@ public class AnalysisUtils {
             if (node == null) return null;
             if (node.getKind().equals("MethodDeclaration")){
                 node = node.getJmmChild(0);
-                
-                String signature = node.get("signature");
+                StringBuilder signature = new StringBuilder();
 
-                for (Symbol symbol : symbolTable.getParameters(signature)){
+                signature.append(node.get("funcName"));
+                if (node.getKind().equals("MainMethodDeclaration")) {
+                    signature.append("#");
+                    signature.append("String[]");
+                }
+                else{
+                    for (JmmNode child : jmmNode.getChildren()){
+                        if (child.getKind().equals("Parameter")){
+                            Symbol symbol = getSymbol(child);
+                            signature.append("#");
+                            signature.append(symbol.getName());
+                        }
+                    }
+                }
+                for (Symbol symbol : symbolTable.getParameters(signature.toString())){
                     if (jmmNode.get("name").equals(symbol.getName())) return symbol.getType();
                 }
-                for (Symbol symbol : symbolTable.getLocalVariables(signature)){
+                for (Symbol symbol : symbolTable.getLocalVariables(signature.toString())){
                     if (jmmNode.get("name").equals(symbol.getName())) return symbol.getType();
                 }
                 while (node.getKind().equals("Class")) node = node.getJmmParent();
@@ -105,33 +118,6 @@ public class AnalysisUtils {
             if (node.getKind().equals("Class")){
                 for (Symbol symbol : symbolTable.getFields()){
                     if (jmmNode.get("name").equals(symbol.getName())) return symbol.getType();
-                }
-            }
-        }
-        if (jmmNode.getKind().equals("Assignment")){
-            JmmNode node = jmmNode;
-            while (node != null) {
-                if (node.getKind().equals("MethodDeclaration")) break;
-                if (node.getKind().equals("Class")) break;
-                node = node.getJmmParent();
-            }
-            if (node == null) return null;
-            if (node.getKind().equals("MethodDeclaration")){
-                node = node.getJmmChild(0);
-
-                String signature = node.get("signature");
-
-                for (Symbol symbol : symbolTable.getParameters(signature)){
-                    if (jmmNode.get("value").equals(symbol.getName())) return symbol.getType();
-                }
-                for (Symbol symbol : symbolTable.getLocalVariables(signature)){
-                    if (jmmNode.get("value").equals(symbol.getName())) return symbol.getType();
-                }
-                while (node.getKind().equals("Class")) node = node.getJmmParent();
-            }
-            if (node.getKind().equals("Class")){
-                for (Symbol symbol : symbolTable.getFields()){
-                    if (jmmNode.get("value").equals(symbol.getName())) return symbol.getType();
                 }
             }
         }

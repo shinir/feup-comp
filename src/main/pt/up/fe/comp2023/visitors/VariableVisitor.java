@@ -26,37 +26,10 @@ public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
 
     @Override
     protected void buildVisitor() {
-        this.addVisit("BinaryOp", this::dealWithBinaryOp);
-        this.addVisit("Assignment", this::dealWithAssignment);
+
         this.setDefaultVisit(this::myVisitAllChildren);
     }
 
-    private Boolean dealWithAssignment(JmmNode jmmNode, MySymbolTable symbolTable) {
-        Type left  = utils.getType(jmmNode,symbolTable);
-        Type right = utils.getType(jmmNode.getJmmChild(0), symbolTable);
-        return true;
-    }
-
-    private Boolean dealWithBinaryOp(JmmNode jmmNode, MySymbolTable symbolTable) {
-        Type left = utils.getType(jmmNode.getJmmChild(0), symbolTable);
-        Type right = utils.getType(jmmNode.getJmmChild(1), symbolTable);
-
-        if (LOGICAL_OP.contains(jmmNode.get("op"))){
-            if (left.isArray() || right.isArray() || !left.getName().equals("boolean") || !right.getName().equals("boolean")){
-                Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "Logical operators should be use with boolean expressions");
-                reports.add(newReport);
-                return false;
-            }
-        }
-        if (left.isArray() || right.isArray() || !left.getName().equals("int") || !right.getName().equals("int")){
-            Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "Logical operators should be use with boolean expressions");
-            reports.add(newReport);
-            return false;
-        }
-
-        return true;
-
-    }
 
 
     private Boolean myVisitAllChildren(JmmNode jmmNode, MySymbolTable symbolTable) {
