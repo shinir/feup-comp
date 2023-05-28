@@ -295,13 +295,13 @@ public class OLLIRtoJasmin {
         switch (operation) {
             case ADD -> code.append("iadd\n");
             case SUB -> code.append("isub\n");
-            case MUL -> code.append("imul\n");
+            case MUL, ANDB -> code.append("imul\n");
             case DIV -> code.append("idiv\n");
             case OR -> code.append("ior\n");
-            /*
             case LTH -> {
                 lessThan(instruction.getLeftOperand(), instruction.getRightOperand());
             }
+            /*
             case ANDB -> throw new NotImplementedException("boolean and");
             case NOTB -> throw new NotImplementedException("boolean not");
             */
