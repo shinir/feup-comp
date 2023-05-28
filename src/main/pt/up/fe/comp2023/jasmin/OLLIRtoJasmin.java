@@ -266,10 +266,6 @@ public class OLLIRtoJasmin {
         return "";
     }
 
-    private String storeArray(Element l, String r, HashMap<String, Descriptor> hash) {
-        int
-    }
-
     private String store(int reg) {
         StringBuilder code = new StringBuilder();
         if (reg >= 0 && reg <= 3) {
