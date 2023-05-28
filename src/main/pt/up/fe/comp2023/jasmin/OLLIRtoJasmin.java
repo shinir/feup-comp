@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 
 public class OLLIRtoJasmin {
     private final ClassUnit classUnit;
-    private int lbl = 0;
 
     public OLLIRtoJasmin(ClassUnit classUnit) {
         this.classUnit = classUnit;
@@ -315,60 +314,16 @@ public class OLLIRtoJasmin {
         OperationType operation = instruction.getOperation().getOpType();
         String left = getLoad(hash, instruction.getLeftOperand());
         String right = getLoad(hash, instruction.getRightOperand());
-
-        /*
-        if(operation == OperationType.LTH) {
-            code.append(left).append(right);
-            code.append(lessThan());
+        code.append(left).append(right);
+        switch (operation) {
+            case ADD -> code.append("iadd\n");
+            case SUB -> code.append("isub\n");
+            case MUL -> code.append("imul\n");
+            case DIV -> code.append("idiv\n");
+            case OR -> code.append("ior\n");
+            default -> code.append("");
         }
-        else if(operation == OperationType.ANDB) {
-            andBoolean(instruction.getLeftOperand(), instruction.getRightOperand());
-        }
-        else {*/
-            code.append(left).append(right);
-            switch (operation) {
-                case ADD -> code.append("iadd\n");
-                case SUB -> code.append("isub\n");
-                case MUL -> code.append("imul\n");
-                case DIV -> code.append("idiv\n");
-                case OR -> code.append("ior\n");
-                default -> code.append("");
-            }
-        //}
         return code.toString();
-    }
-
-    private String lessThan() {
-        StringBuilder code = new StringBuilder();
-        String first = "LTH_" + next();
-        String second = "LTH_" + next();
-        code.append("if_icmplt ").append(first).append("\n")
-                .append(iconst("0")).append("goto ")
-                .append(second).append("\n").append(first).append(":\n")
-                .append(iconst("1")).append(second).append(":\n");
-        return code.toString();
-    }
-
-    private String andBoolean(Element left, Element right) {
-        StringBuilder code = new StringBuilder();
-        String first = "ANDB_" + next();
-        String second = "ANDB_" + next();
-
-        code.append(left)
-            .append("ifeq ").append(first).append("\n")
-            .append(right)
-            .append("ifeq ").append(first).append("\n")
-            .append(iconst("1"))
-            .append("goto ").append(second).append("\n")
-            .append(first).append(":\n")
-            .append(iconst("0"))
-            .append(second).append(":\n");
-
-        return code.toString();
-    }
-
-    private int next() {
-        return this.lbl++;
     }
 
     private String getLoad(HashMap<String, Descriptor> hash, Element element) {
