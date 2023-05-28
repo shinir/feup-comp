@@ -291,6 +291,7 @@ public class OLLIRtoJasmin {
         String left = getLoad(hash, instruction.getLeftOperand());
         String right = getLoad(hash, instruction.getRightOperand());
 
+        /*
         if(operation == OperationType.LTH) {
             code.append(left).append(right);
             code.append(lessThan());
@@ -298,7 +299,7 @@ public class OLLIRtoJasmin {
         else if(operation == OperationType.ANDB) {
             andBoolean(instruction.getLeftOperand(), instruction.getRightOperand());
         }
-        else {
+        else {*/
             code.append(left).append(right);
             switch (operation) {
                 case ADD -> code.append("iadd\n");
@@ -308,7 +309,7 @@ public class OLLIRtoJasmin {
                 case OR -> code.append("ior\n");
                 default -> code.append("");
             }
-        }
+        //}
         return code.toString();
     }
 
