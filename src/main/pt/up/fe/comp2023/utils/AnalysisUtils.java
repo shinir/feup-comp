@@ -12,21 +12,29 @@ import java.util.Objects;
 
 public class AnalysisUtils {
 
+    static final List<String> PRIMITIVES = Arrays.asList("int", "void", "boolean");
     static final List<String> ARITHMETIC_OP = Arrays.asList("+", "-", "*", "/");
-    public Type getType(JmmNode jmmNode, SymbolTable symbolTable) {
+    static final List<String> COMPARISON_OP = List.of("<", ">", ">=", "<=", "==", "!=");
+    static final List<String> LOGICAL_OP = List.of("&&", "||");
 
+    public Type getType(JmmNode jmmNode, SymbolTable symbolTable) {
         if (jmmNode.getKind().equals("VarDeclaration")){
-            //symbol table check
+            return new Type(jmmNode.getJmmChild(0).get("name"), Boolean.parseBoolean(jmmNode.getJmmChild(0).get("isArray")));
+        }
+        if (jmmNode.getKind().equals("MethodDeclaration")){
+            return getType(jmmNode.getJmmChild(0), symbolTable);
         }
         if (jmmNode.getKind().equals("MainMethodDeclaration")){
             return new Type("void", false);
         }
         if (jmmNode.getKind().equals("FunctionMethodDeclaration")){
-            //symbol table
+            return new Type(jmmNode.getJmmChild(0).get("name"), Boolean.parseBoolean(jmmNode.getJmmChild(0).get("isArray")));
         }
-
         if (jmmNode.getKind().equals("Parameter")){
-            //symbol table
+            return new Type(jmmNode.getJmmChild(0).get("name"), Boolean.parseBoolean(jmmNode.getJmmChild(0).get("isArray")));
+        }
+        if (jmmNode.getKind().equals("ReturnExpression")){
+            return getType(jmmNode.getJmmChild(0), symbolTable);
         }
         if (jmmNode.getKind().equals("Not")){
             return new Type("boolean", false);
@@ -41,13 +49,20 @@ public class AnalysisUtils {
             return new Type("int", false);
         }
         if (jmmNode.getKind().equals("CallFunction")){
-            //type of func
+            StringBuilder signature = new StringBuilder();
+            signature.append(jmmNode.get("funcName"));
+            int skip_1 = 0;
+            for (JmmNode child : jmmNode.getChildren()){
+                if (skip_1++ == 0) continue;
+                Type type = getType(child, symbolTable);
+                signature.append(type.getName());
+            }
+            return symbolTable.getReturnType(signature.toString());
         }
         if (jmmNode.getKind().equals("BinaryOp")){
-            if (ARITHMETIC_OP.contains( jmmNode.get("op"))){
-                return new Type("int", false);
-            }
-            else return new Type("boolean", false);
+            if (ARITHMETIC_OP.contains(jmmNode.get("op"))) return new Type("int", false);
+            if (COMPARISON_OP.contains(jmmNode.get("op"))) return new Type("boolean", false);
+            if (LOGICAL_OP.contains(jmmNode.get("op"))) return new Type("boolean", false);
         }
         if (jmmNode.getKind().equals("NewArray")){
             return new Type("int", true);
@@ -61,13 +76,10 @@ public class AnalysisUtils {
         if (jmmNode.getKind().equals("Integer")){
             return new Type("int", false);
         }
-        if (jmmNode.getKind().equals("Variable")){
-            //
-        }
         if (jmmNode.getKind().equals("This")){
-            //
+            return new Type(symbolTable.getClassName(), false);
         }
-        return getType(jmmNode.getJmmChild(0), symbolTable);
+        return null;
     }
 
 

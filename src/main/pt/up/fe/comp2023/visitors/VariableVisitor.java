@@ -37,8 +37,6 @@ public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
     }
 
     private Boolean dealWithAssigment(JmmNode jmmNode, MySymbolTable symbolTable) {
-        //Type lhsType = utils.getType(jmmNode.getJmmChild(0), symbolTable);
-        //Type rhsType = utils.getType(jmmNode.getJmmChild(1), symbolTable );
         return false;
     }
 
@@ -47,24 +45,6 @@ public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
     }
 
     private Boolean dealWithClass(JmmNode jmmNode, MySymbolTable symbolTable) {
-        if (!jmmNode.getAttributes().contains("superClass")){
-            return true;
-        }
-
-        String superClass = jmmNode.get("superClass");
-        if (jmmNode.get("name").equals(superClass)) {
-            Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "Class and SuperClass have the same name");
-            reports.add(newReport);
-            return false;
-        }
-
-        boolean imported = symbolTable.getImports().stream().anyMatch(i -> i.substring(i.lastIndexOf(".")+1).equals(superClass));
-
-        if (imported){
-            return true;
-        }
-        Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "SuperClass dont exist");
-        reports.add(newReport);
         return false;
     }
 
@@ -73,44 +53,23 @@ public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
     }
 
     private boolean dealWithBinaryOp(JmmNode jmmNode, MySymbolTable symbolTable) {
-        //Type lhsType = utils.getType(jmmNode.getJmmChild(0));
-        //Type rhsType = utils.getType(jmmNode.getJmmChild(1));
-
-        /*if (lhsType.getName().equals("#UNKNOWN") || rhsType.getName().equals("#UNKNOWN")) {
-            jmmNode.put("type", "#UNKNOWN");
-            return true;
-        }*/
-
         return true;
     }
+
     private Boolean dealWithComparisonOp(JmmNode jmmNode, MySymbolTable symbolTable) {
         return true;
     }
 
     private Boolean dealWithThis(JmmNode jmmNode, MySymbolTable symbolTable) {
-        if (jmmNode.getAncestor("functionMethodDeclaration").isEmpty()){
-            //put unknown type
-            Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "This Keyword Related Error");
-            reports.add(newReport);
-            return false;
-        }
-
-        Type type = new Type(symbolTable.getClassName(), false);
-        jmmNode.put("type", type.getName());
-        jmmNode.put("isArray", String.valueOf(type.isArray()));
-
         return true;
     }
 
     private Boolean dealWithVarDeclaration(JmmNode jmmNode, MySymbolTable symbolTable) {
-        //Type type = utils.getType(jmmNode.getJmmChild(0));
-        //if(!types.contains(type.getName())) reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 0, "Class unknown/not instanced."));
         return true;
     }
 
     public List<Report> getReports() {
         return reports;
     }
-
-
+    
 }
