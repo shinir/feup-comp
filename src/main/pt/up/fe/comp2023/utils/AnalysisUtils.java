@@ -49,15 +49,8 @@ public class AnalysisUtils {
             return new Type("int", false);
         }
         if (jmmNode.getKind().equals("CallFunction")){
-            StringBuilder signature = new StringBuilder();
-            signature.append(jmmNode.get("funcName"));
-            int skip_1 = 0;
-            for (JmmNode child : jmmNode.getChildren()){
-                if (skip_1++ == 0) continue;
-                Type type = getType(child, symbolTable);
-                signature.append(type.getName());
-            }
-            return symbolTable.getReturnType(signature.toString());
+
+            //return symbolTable.getReturnType(signature.toString());
         }
         if (jmmNode.getKind().equals("BinaryOp")){
             if (ARITHMETIC_OP.contains(jmmNode.get("op"))) return new Type("int", false);
@@ -78,6 +71,9 @@ public class AnalysisUtils {
         }
         if (jmmNode.getKind().equals("This")){
             return new Type(symbolTable.getClassName(), false);
+        }
+        if (jmmNode.getKind().equals("Variable")){
+
         }
         return null;
     }

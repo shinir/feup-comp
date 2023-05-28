@@ -26,47 +26,16 @@ public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
 
     @Override
     protected void buildVisitor() {
-        addVisit("Class", this::dealWithClass);
-        addVisit("VarDeclaration", this::dealWithVarDeclaration);
-        addVisit("BinaryOp", this::dealWithBinaryOp);
-        addVisit("ComparisonOp", this::dealWithComparisonOp);
-        addVisit("This", this::dealWithThis);
-        addVisit("CallFunction", this::dealWithFuncCall);
-        addVisit("Assignment", this::dealWithAssigment);
+
         this.setDefaultVisit(this::myVisitAllChildren);
     }
 
-    private Boolean dealWithAssigment(JmmNode jmmNode, MySymbolTable symbolTable) {
-        return false;
-    }
 
-    private Boolean dealWithFuncCall(JmmNode jmmNode, MySymbolTable symbolTable) {
-        return false;
-    }
-
-    private Boolean dealWithClass(JmmNode jmmNode, MySymbolTable symbolTable) {
-        return false;
-    }
 
     private Boolean myVisitAllChildren(JmmNode jmmNode, MySymbolTable symbolTable) {
         return true;
     }
 
-    private boolean dealWithBinaryOp(JmmNode jmmNode, MySymbolTable symbolTable) {
-        return true;
-    }
-
-    private Boolean dealWithComparisonOp(JmmNode jmmNode, MySymbolTable symbolTable) {
-        return true;
-    }
-
-    private Boolean dealWithThis(JmmNode jmmNode, MySymbolTable symbolTable) {
-        return true;
-    }
-
-    private Boolean dealWithVarDeclaration(JmmNode jmmNode, MySymbolTable symbolTable) {
-        return true;
-    }
 
     public List<Report> getReports() {
         return reports;
