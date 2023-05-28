@@ -72,11 +72,11 @@ expression
     | '(' expression ')' #Parenthesis
     | expression '[' expression ']' #ArrayAccess
     | expression '.' 'length' #GetLength
+    | expression '.' functName=ID '(' ( expression ( ',' expression )* )? ')' #CallFunction
     | expression ( op='*' | op='/' ) expression #BinaryOp
     | expression ( op='+' | op='-' ) expression #BinaryOp
     | expression ( op='<' | op='>' | op='<=' | op='>=' | op='==' | op='!=' ) expression #BinaryOp
     | expression ( op='&&' | op='||' ) expression #BinaryOp
-    | expression '.' functName=ID '(' ( expression ( ',' expression )* )? ')' #CallFunction
     | 'new' 'int' '[' expression ']' #NewArray
     | 'new' name=ID '(' ')' #NewVar
     | expression WS expression #NLExpression

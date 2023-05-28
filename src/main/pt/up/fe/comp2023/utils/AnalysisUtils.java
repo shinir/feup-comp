@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class AnalysisUtils {
+
     static final List<String> ARITHMETIC_OP = Arrays.asList("+", "-", "*", "/");
     public Type getType(JmmNode jmmNode, SymbolTable symbolTable) {
 
@@ -104,12 +105,13 @@ public class AnalysisUtils {
 
         boolean isArray = jmmNode.hasAttribute("isArray");
         return new Type(jmmNode.get("name"), isArray);
+
     }
 
 
     public Symbol getSymbol(JmmNode jmmNode) {
         String symbol = jmmNode.get("name");
-        Type type = new Type(jmmNode.getJmmChild(0).get("name"),Boolean.getBoolean(jmmNode.getJmmChild(0).get("isArray")));
+        Type type = new Type(jmmNode.getJmmChild(0).get("name"),Boolean.parseBoolean(jmmNode.getJmmChild(0).get("isArray")));
         return new Symbol(type, symbol);
     }
 
