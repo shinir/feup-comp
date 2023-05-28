@@ -91,7 +91,7 @@ public class AnalysisUtils {
             if (node == null) return null;
             if (node.getKind().equals("MethodDeclaration")){
                 node = node.getJmmChild(0);
-                
+
                 String signature = node.get("signature");
 
                 for (Symbol symbol : symbolTable.getParameters(signature)){
@@ -108,7 +108,7 @@ public class AnalysisUtils {
                 }
             }
         }
-        if (jmmNode.getKind().equals("Assignment")){
+        if (jmmNode.getKind().equals("Assignment") || jmmNode.getKind().equals("ArrayAssignment")){
             JmmNode node = jmmNode;
             while (node != null) {
                 if (node.getKind().equals("MethodDeclaration")) break;
