@@ -369,7 +369,7 @@ public class OLLIRtoJasmin {
         ElementType type = element.getType().getTypeOfElement();
         // iconst
         if (element.isLiteral()) {
-            return iconst(((LiteralElement) element).getLiteral()) + "iaload";
+            return iconst(((LiteralElement) element).getLiteral());
         }
 
         // iload
@@ -382,7 +382,7 @@ public class OLLIRtoJasmin {
             else {
                 instruction = instruction + " ";
             }
-            return instruction + reg + "\n" + "iaload";
+            return instruction + reg + "\n";
         }
 
         // aload
@@ -394,7 +394,7 @@ public class OLLIRtoJasmin {
             } else {
                 instruction = instruction + " ";
             }
-            return instruction + reg + "\n" + "iaload";
+            return instruction + reg + "\n";
         }
         return "";
     }
