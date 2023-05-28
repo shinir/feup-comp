@@ -32,11 +32,18 @@ public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
         addVisit("ComparisonOp", this::dealWithComparisonOp);
         addVisit("This", this::dealWithThis);
         addVisit("CallFunction", this::dealWithFuncCall);
+        addVisit("Assignment", this::dealWithAssigment);
         this.setDefaultVisit(this::myVisitAllChildren);
     }
 
-    private Boolean dealWithFuncCall(JmmNode jmmNode, MySymbolTable symbolTable) {
+    private Boolean dealWithAssigment(JmmNode jmmNode, MySymbolTable symbolTable) {
+        //Type lhsType = utils.getType(jmmNode.getJmmChild(0));
+        //Type rhsType = utils.getType(jmmNode.getJmmChild(1));
+        return false;
+    }
 
+    private Boolean dealWithFuncCall(JmmNode jmmNode, MySymbolTable symbolTable) {
+        /*
 
         if(!jmmNode.getJmmChild(0).getAttributes().contains("type")){
             if (jmmNode.getJmmChild(0).get("name").equals(symbolTable.getClassName())){
@@ -143,7 +150,10 @@ public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
         //Type lhsType = utils.getType(jmmNode.getJmmChild(0));
         //Type rhsType = utils.getType(jmmNode.getJmmChild(1));
 
-
+        /*if (lhsType.getName().equals("#UNKNOWN") || rhsType.getName().equals("#UNKNOWN")) {
+            jmmNode.put("type", "#UNKNOWN");
+            return true;
+        }*/
 
         return true;
     }
