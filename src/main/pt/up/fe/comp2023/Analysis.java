@@ -31,7 +31,7 @@ public class Analysis implements JmmAnalysis {
 
         System.out.println("SymbolTable: \n" + symbolTable.print());
 
-        reports = SpecsCollections.concat(analysisVisitor.getReports(), variableVisitor.getReports());
+        //reports = SpecsCollections.concat(analysisVisitor.getReports(), variableVisitor.getReports());
 
         System.out.println(reports);
         return new JmmSemanticsResult(jmmParserResult, symbolTable, reports);

@@ -37,34 +37,9 @@ public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
     }
 
     private Boolean dealWithAssigment(JmmNode jmmNode, MySymbolTable symbolTable) {
-        Type lhsType = utils.getType(jmmNode, symbolTable);
-        Type rhsType = utils.getType(jmmNode.getJmmChild(0), symbolTable );
-
-        if (lhsType == null || rhsType == null){
-            Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "Assigment ERROR");
-            reports.add(newReport);
-            return false;
-        }
-        if (!lhsType.getName().equals(rhsType.getName()) || !lhsType.isArray() == rhsType.isArray()){
-            if (rhsType.getName().equals(symbolTable.getClassName())){
-                if (lhsType.getName().equals(symbolTable.getSuper())){
-                    return true;
-                }
-            }
-
-            boolean left_imported = false, right_imported = false;
-            for (String imported : symbolTable.getImports()){
-                if (utils.getImportWord(imported).equals(lhsType.getName())) left_imported = true;
-                if (utils.getImportWord(imported).equals(rhsType.getName())) right_imported = true;
-                if (left_imported && right_imported) return true;
-            }
-
-
-            Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "Assigment Type ERROR");
-            reports.add(newReport);
-            return false;
-        }
-        return true;
+        //Type lhsType = utils.getType(jmmNode.getJmmChild(0), symbolTable);
+        //Type rhsType = utils.getType(jmmNode.getJmmChild(1), symbolTable );
+        return false;
     }
 
     private Boolean dealWithFuncCall(JmmNode jmmNode, MySymbolTable symbolTable) {
@@ -113,6 +88,17 @@ public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
     }
 
     private Boolean dealWithThis(JmmNode jmmNode, MySymbolTable symbolTable) {
+        if (jmmNode.getAncestor("functionMethodDeclaration").isEmpty()){
+            //put unknown type
+            Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "This Keyword Related Error");
+            reports.add(newReport);
+            return false;
+        }
+
+        Type type = new Type(symbolTable.getClassName(), false);
+        jmmNode.put("type", type.getName());
+        jmmNode.put("isArray", String.valueOf(type.isArray()));
+
         return true;
     }
 
