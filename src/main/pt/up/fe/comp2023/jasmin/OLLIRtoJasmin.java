@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 public class OLLIRtoJasmin {
     private final ClassUnit classUnit;
+    private int lbl = 0;
 
     public OLLIRtoJasmin(ClassUnit classUnit) {
         this.classUnit = classUnit;
@@ -89,10 +90,17 @@ public class OLLIRtoJasmin {
         code.append(params).append(")").append(getJasminType(method.getReturnType())).append("\n");
         code.append(".limit stack 99\n").append(".limit locals 99\n");
 
-        //HashMap<String, Instruction> methodLabels = method.getLabels();
+        HashMap<String, Instruction> methodLabels = method.getLabels();
 
         for (Instruction instruction : method.getInstructions()) {
             code.append(getCode(method, instruction));
+
+            for(String label : methodLabels.keySet()) {
+                if(methodLabels.get(label).equals(instruction)) {
+                    code.append(":\n");
+                }
+            }
+
             if(instruction.getInstType().equals(InstructionType.CALL)) {
                 ElementType type = ((CallInstruction) instruction).getReturnType().getTypeOfElement();
                 if(((CallInstruction) instruction).getInvocationType() == CallType.invokespecial || type != ElementType.VOID) {
@@ -184,8 +192,12 @@ public class OLLIRtoJasmin {
 
     public String getCode(Method method, CondBranchInstruction instruction) {
         StringBuilder code = new StringBuilder();
-        String noper = getNoper(method.getVarTable(), (SingleOpInstruction) instruction.getCondition());
-        code.append(noper).append("ifne").append(instruction.getLabel()).append("\n");
+        var opInstruction = (SingleOpInstruction) instruction.getCondition();
+        String noper = getNoper(method.getVarTable(), opInstruction);
+        code.append(noper);
+        if(opInstruction.getSingleOperand().isLiteral()) code.append("ifne").append(instruction.getLabel()).append("\n");
+        else code.append("if_icmplt").append(instruction.getLabel()).append("\n");
+
         return code.toString();
     }
 
@@ -275,19 +287,45 @@ public class OLLIRtoJasmin {
 
     private String getBinary(HashMap<String, Descriptor> hash, BinaryOpInstruction instruction) {
         StringBuilder code = new StringBuilder();
+        OperationType operation = instruction.getOperation().getOpType();
 
         code.append(getLoad(hash, instruction.getLeftOperand()))
             .append(getLoad(hash, instruction.getRightOperand()));
 
-        switch (instruction.getOperation().getOpType()) {
+        switch (operation) {
             case ADD -> code.append("iadd\n");
             case SUB -> code.append("isub\n");
             case MUL, ANDB -> code.append("imul\n");
             case DIV -> code.append("idiv\n");
             case OR -> code.append("ior\n");
+            case LTH -> {
+                lessThan(instruction.getLeftOperand(), instruction.getRightOperand());
+            }
+            /*
+            case ANDB -> throw new NotImplementedException("boolean and");
+            case NOTB -> throw new NotImplementedException("boolean not");
+            */
             default -> code.append("");
         }
         return code.toString();
+    }
+
+    private String lessThan(Element left, Element right) {
+        StringBuilder code = new StringBuilder();
+        int first = nextValue();
+        int sec = nextValue();
+
+        code.append("if_icmplt").append("LTH_").append(first).append("\n");
+        code.append(iconst("0")).append("goto");
+        code.append("LTH_").append(sec).append("\n");
+        code.append("LTH_").append(first).append(":\n");
+        code.append(iconst("1")).append("LTH_").append(sec).append(":\n");
+
+        return code.toString();
+    }
+
+    private int nextValue() {
+        return lbl++;
     }
 
     private String getLoad(HashMap<String, Descriptor> hash, Element element) {
