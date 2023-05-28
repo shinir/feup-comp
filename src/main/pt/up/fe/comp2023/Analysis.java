@@ -34,6 +34,7 @@ public class Analysis implements JmmAnalysis {
 
         reports = SpecsCollections.concat(analysisVisitor.getReports(), variableVisitor.getReports());
 
+        System.out.println(reports);
         return new JmmSemanticsResult(jmmParserResult, symbolTable, reports);
     }
 

@@ -162,7 +162,7 @@ public class AnalysisUtils {
         if (jmmNode.getKind().equals("This")){
             //
         }
-        return null;
+        return getType(jmmNode.getJmmChild(0), symbolTable);
     }
 
 

@@ -11,7 +11,6 @@ import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.report.Report;
 
-import javax.lang.model.element.TypeElement;
 import java.util.*;
 import java.util.stream.Collectors;
 
