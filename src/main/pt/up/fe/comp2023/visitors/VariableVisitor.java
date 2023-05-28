@@ -88,6 +88,7 @@ public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
     }
 
 
+
     private Boolean myVisitAllChildren(JmmNode jmmNode, MySymbolTable symbolTable) {
         return true;
     }
