@@ -36,7 +36,16 @@ public class Launcher {
 
         // Read contents of input file
         String code = SpecsIo.read(inputFile);
-        code = SpecsIo.read("test/pt/up/fe/comp/cp2/ollir/CompileBasic.jmm");
+        //code = SpecsIo.read("test/pt/up/fe/comp/cp2/ollir/CompileBasic.jmm");
+        //code = SpecsIo.read("test/pt/up/fe/comp/cp2/ollir/CompileAssignment.jmm");
+        //code = SpecsIo.read("test/pt/up/fe/comp/cpf/3_ollir/control_flow/SimpleIfElseStat.jmm");
+        //code = SpecsIo.read("test/pt/up/fe/comp/cp2/ollir/CompileArithmetic.jmm");
+        //code = SpecsIo.read("test/pt/up/fe/comp/cpf/3_ollir/control_flow/SimpleWhileStat.jmm");
+        //code = SpecsIo.read("test/pt/up/fe/comp/cpf/3_ollir/arrays/ArrayAccess.jmm");
+        //code = SpecsIo.read("test/pt/up/fe/comp/cpf/3_ollir/arrays/ArrayInit.jmm");
+        //code = SpecsIo.read("test/pt/up/fe/comp/cpf/3_ollir/basic/BasicMethodsArray.jmm");
+        //code = SpecsIo.read("test/pt/up/fe/comp/cp2/ollir/CompileMethodInvocation.jmm");
+        code = SpecsIo.read("test/pt/up/fe/comp/cpf/3_ollir/arrays/ComplexArrayAccess.jmm");
         // Instantiate JmmParser
         SimpleParser parser = new SimpleParser();
 
@@ -54,6 +63,7 @@ public class Launcher {
         JmmOptimize optimizer = new JmmOptimize();
         OllirResult ollirResult = optimizer.toOllir(semanticsResult);
 
+        System.out.println("\nCODE OLLIR:\n");
         System.out.println(ollirResult.getOllirCode());
 
         /*

@@ -149,12 +149,7 @@ public class AnalysisVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
             reports.add(newReport);
         }
         else {
-            if (funcName.equals("main")){
-                symbolTable.addMainMethod(signature.toString(), parameters, variables, returnType);
-            }
-            else {
-                symbolTable.addMethods(signature.toString(), parameters, variables, returnType);
-            }
+            symbolTable.addMethods(signature.toString(), parameters, variables, returnType);
         }
         jmmNode.put("signature", signature.toString());
 
