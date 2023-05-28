@@ -37,86 +37,12 @@ public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
     }
 
     private Boolean dealWithAssigment(JmmNode jmmNode, MySymbolTable symbolTable) {
-        Type lhsType = utils.getType(jmmNode.getJmmChild(0), symbolTable);
-        //Type rhsType = utils.getType(jmmNode.getJmmChild(1));
+        //Type lhsType = utils.getType(jmmNode.getJmmChild(0), symbolTable);
+        //Type rhsType = utils.getType(jmmNode.getJmmChild(1), symbolTable );
         return false;
     }
 
     private Boolean dealWithFuncCall(JmmNode jmmNode, MySymbolTable symbolTable) {
-        /*
-
-        if(!jmmNode.getJmmChild(0).getAttributes().contains("type")){
-            if (jmmNode.getJmmChild(0).get("name").equals(symbolTable.getClassName())){
-
-                StringBuilder methodSignatureBuilder = new StringBuilder();
-                methodSignatureBuilder.append(jmmNode.get("funcName"));
-                for (JmmNode argument: jmmNode.getJmmChild(1).getChildren()) {
-                    Type argType = utils.getType(argument);
-                    methodSignatureBuilder.append("#");
-                    methodSignatureBuilder.append(argType.print());
-                }
-                String signature = methodSignatureBuilder.toString();
-
-                boolean exists = symbolTable
-                        .getMethods()
-                        .stream()
-                        .anyMatch(f -> f.substring(0, methodSignatureBuilder.indexOf("#")).equals(jmmNode.get("funcName")));
-                if (exists){
-                    Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "Method call caused an ERROR");
-                    reports.add(newReport);
-                }
-                else if (symbolTable.getSuper() == null){
-                    Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "Method call caused an ERROR");
-                    reports.add(newReport);
-                }
-            }
-            jmmNode.put("type", "#UNKNOWN");
-            return true;
-        }
-
-        Type operand = utils.getType(jmmNode.getJmmChild(0));
-        if (PRIMITIVES.contains(operand.getName())){
-            jmmNode.put("type", "#UNKNOWN");
-            Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "Function call ERROR");
-            reports.add(newReport);
-            return false;
-        }
-
-        if (operand.getName().equals("#UNKNOWN")
-                || operand.isArray()
-                || !symbolTable.getClassName().equals(operand.getName())){
-            jmmNode.put("type", "#UNKNOWN");
-            return false;
-        }
-
-        /*
-        StringBuilder methodSignatureBuilder = new StringBuilder();
-        methodSignatureBuilder.append(jmmNode.get("funcName"));
-        for (JmmNode argument: jmmNode.getJmmChild(1).getChildren()) {
-            Type argType = utils.getType(argument);
-            methodSignatureBuilder.append("#");
-            methodSignatureBuilder.append(argType.print());
-        }
-        String signature = methodSignatureBuilder.toString();
-        Optional<String> foundSignature;
-        if (symbolTable.getMethods().contains(signature)) {
-            foundSignature = Optional.of(signature);
-        } else {
-            List<String> foundMethodSignatures = symbolTable
-                    .getMethods()
-                    .stream()
-                    .filter(m -> signatureIsCompatibleWith(m, signature, symbolTable))
-                    .collect(Collectors.toList());
-            if (foundMethodSignatures.size() > 1) {
-                jmmNode.put("type", "#UNKNOWN");
-                Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "Function call ERROR");
-                reports.add(newReport);
-                return false;
-            } else {
-                foundSignature = foundMethodSignatures.stream().findAny();
-            }
-        }
-        */
         return false;
     }
 
