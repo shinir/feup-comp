@@ -26,43 +26,14 @@ public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
 
     @Override
     protected void buildVisitor() {
-        this.addVisit("ArrayAccess", this::dealWithArrayAssignment);
-        this.addVisit("WhileCondition", this::dealWithCondition);
-        this.addVisit("IfCondition", this::dealWithCondition);
         this.addVisit("BinaryOp", this::dealWithBinaryOp);
         this.addVisit("Assignment", this::dealWithAssignment);
         this.setDefaultVisit(this::myVisitAllChildren);
     }
 
-    private Boolean dealWithArrayAssignment(JmmNode jmmNode, MySymbolTable symbolTable) {
-        return true;
-    }
-
-    private Boolean dealWithCondition(JmmNode jmmNode, MySymbolTable symbolTable) {
-        Type type = utils.getType(jmmNode.getJmmChild(0),symbolTable);
-        if (type.isArray() || !type.getName().equals("boolean")){
-            Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "Condition must be boolean");
-            reports.add(newReport);
-            return false;
-        }
-        return true;
-    }
-
     private Boolean dealWithAssignment(JmmNode jmmNode, MySymbolTable symbolTable) {
         Type left  = utils.getType(jmmNode,symbolTable);
         Type right = utils.getType(jmmNode.getJmmChild(0), symbolTable);
-
-        if (left.isArray() != left.isArray()){
-            Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "Cant assign different types");
-            reports.add(newReport);
-            return false;
-        }
-        if (!left.getName().equals(right.getName())){
-            if(left.getName().equals(symbolTable.getSuper()) && right.getName().equals(symbolTable.getClassName())) return true;
-            Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "Cant assign different types");
-            reports.add(newReport);
-            return false;
-        }
         return true;
     }
 
