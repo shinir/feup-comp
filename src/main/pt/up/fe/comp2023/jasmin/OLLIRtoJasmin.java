@@ -288,44 +288,61 @@ public class OLLIRtoJasmin {
     private String getBinary(HashMap<String, Descriptor> hash, BinaryOpInstruction instruction) {
         StringBuilder code = new StringBuilder();
         OperationType operation = instruction.getOperation().getOpType();
+        String left = getLoad(hash, instruction.getLeftOperand());
+        String right = getLoad(hash, instruction.getRightOperand());
 
-        code.append(getLoad(hash, instruction.getLeftOperand()))
-            .append(getLoad(hash, instruction.getRightOperand()));
-
-        switch (operation) {
-            case ADD -> code.append("iadd\n");
-            case SUB -> code.append("isub\n");
-            case MUL, ANDB -> code.append("imul\n");
-            case DIV -> code.append("idiv\n");
-            case OR -> code.append("ior\n");
-            case LTH -> {
-                lessThan(instruction.getLeftOperand(), instruction.getRightOperand());
+        if(operation == OperationType.LTH) {
+            code.append(left).append(right);
+            code.append(lessThan());
+        }
+        else if(operation == OperationType.ANDB) {
+            andBoolean(instruction.getLeftOperand(), instruction.getRightOperand());
+        }
+        else {
+            code.append(left).append(right);
+            switch (operation) {
+                case ADD -> code.append("iadd\n");
+                case SUB -> code.append("isub\n");
+                case MUL -> code.append("imul\n");
+                case DIV -> code.append("idiv\n");
+                case OR -> code.append("ior\n");
+                default -> code.append("");
             }
-            /*
-            case ANDB -> throw new NotImplementedException("boolean and");
-            case NOTB -> throw new NotImplementedException("boolean not");
-            */
-            default -> code.append("");
         }
         return code.toString();
     }
 
-    private String lessThan(Element left, Element right) {
+    private String lessThan() {
         StringBuilder code = new StringBuilder();
-        int first = nextValue();
-        int sec = nextValue();
+        String first = "LTH_" + lbl++;
+        String sec = "LTH_" + lbl++;
 
-        code.append("if_icmplt").append("LTH_").append(first).append("\n");
+        code.append("if_icmplt").append(first).append("\n");
         code.append(iconst("0")).append("goto");
-        code.append("LTH_").append(sec).append("\n");
-        code.append("LTH_").append(first).append(":\n");
-        code.append(iconst("1")).append("LTH_").append(sec).append(":\n");
+        code.append(sec).append("\n");
+        code.append(first).append(":\n");
+        code.append(iconst("1")).append(sec).append(":\n");
 
         return code.toString();
     }
 
-    private int nextValue() {
-        return lbl++;
+    private String andBoolean(Element left, Element right) {
+        StringBuilder code = new StringBuilder();
+        String first = "ANDB_" + lbl++;
+        String sec = "ANDB_" + lbl++;
+
+        code.append(left);
+        code.append("ifeq").append(first).append("\n");
+        code.append(right);
+        code.append("ifeq").append(first).append("\n");
+        code.append(iconst("1")).append("goto");
+        code.append(sec).append("\n");
+        code.append(first).append(":\n");
+        code.append(iconst("0"));
+        code.append(sec).append(":\n");
+
+
+        return code.toString();
     }
 
     private String getLoad(HashMap<String, Descriptor> hash, Element element) {
