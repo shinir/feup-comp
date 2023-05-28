@@ -19,7 +19,7 @@ public class Analysis implements JmmAnalysis {
         MySymbolTable symbolTable = new MySymbolTable();
 
         var analysisVisitor = new AnalysisVisitor(); //Symbol Table
-        var variableVisitor = new VariableVisitor(); //Semantic
+        //var variableVisitor = new VariableVisitor(); //Semantic
 
         JmmNode root = jmmParserResult.getRootNode();
 
@@ -31,7 +31,7 @@ public class Analysis implements JmmAnalysis {
         //VariableVisitor.visit(root, symbolTable);
         System.out.println("SymbolTable: \n" + symbolTable.print());
 
-        reports = SpecsCollections.concat(analysisVisitor.getReports(), variableVisitor.getReports());
+        //reports = SpecsCollections.concat(analysisVisitor.getReports(), variableVisitor.getReports());
 
         return new JmmSemanticsResult(jmmParserResult, symbolTable, reports);
     }

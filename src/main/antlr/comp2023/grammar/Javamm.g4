@@ -70,12 +70,12 @@ statement
 expression
     : '!' expression #Not
     | '(' expression ')' #Parenthesis
-    | expression ( op='*' | op='/' ) expression #BinaryOp
-    | expression ( op='+' | op='-' ) expression #BinaryOp
-    | expression ( op='<' | op='>' | op='<=' | op='>=' | op='==' | op='!=' ) expression #ComparisonOp
-    | expression ( op='&&' | op='||' ) expression #BinaryOp
     | expression '[' expression ']' #ArrayAccess
     | expression '.' 'length' #GetLength
+    | expression ( op='*' | op='/' ) expression #BinaryOp
+    | expression ( op='+' | op='-' ) expression #BinaryOp
+    | expression ( op='<' | op='>' | op='<=' | op='>=' | op='==' | op='!=' ) expression #BinaryOp
+    | expression ( op='&&' | op='||' ) expression #BinaryOp
     | expression '.' functName=ID '(' ( expression ( ',' expression )* )? ')' #CallFunction
     | 'new' 'int' '[' expression ']' #NewArray
     | 'new' name=ID '(' ')' #NewVar

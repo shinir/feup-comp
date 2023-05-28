@@ -39,4 +39,19 @@ public class ollirUtils {
         boolean isArray = node.getAttributes().contains("isArray") && node.get("isArray").equals("true");
         return new Type(node.get("value"), isArray);
     }
+
+    // Get return type of a function
+    public static Type getReturnType(JmmNode node){
+        JmmNode auxNode = node.getAncestor("FunctionMethodDeclaration").get().getJmmChild(0);
+        return new Type(auxNode.get("name"), Boolean.parseBoolean(auxNode.get("isArray")));
+    }
+
+    public static String getOllirOp(String op){
+        return switch (op) {
+            case "+", "-", "/", "*" -> ".i32";
+            case "&&", "||", "<", ">", "<=", ">=", "==", "!=" -> ".bool";
+            default -> "";
+        };
+
+    }
 }
