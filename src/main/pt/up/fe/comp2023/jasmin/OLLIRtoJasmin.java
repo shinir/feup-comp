@@ -256,7 +256,7 @@ public class OLLIRtoJasmin {
 
         if (type == ElementType.INT32 || type == ElementType.STRING || type == ElementType.BOOLEAN) {
             if(reg.getVarType().getTypeOfElement() == ElementType.ARRAYREF) {
-                return getLoad(hash, l) + "iastore\n";
+                return getArray(l, r, hash) + "iastore\n";
             }
             return r + "istore" + store(reg.getVirtualReg());
         }
@@ -264,6 +264,12 @@ public class OLLIRtoJasmin {
             return r + "astore" + store(reg.getVirtualReg());
         }
         return "";
+    }
+
+    private String getArray(Element l, String r, HashMap<String, Descriptor> hash) {
+        int a = hash.get(((Operand) l).getName()).getVirtualReg();
+        int i = hash.get(((Operand) ((ArrayOperand) l).getIndexOperands().get(0)).getName()).getVirtualReg();
+        return aload(a) + iload(i) + r;
     }
 
     private String store(int reg) {
@@ -374,27 +380,18 @@ public class OLLIRtoJasmin {
 
         // iload
         if (type == ElementType.INT32 || type == ElementType.STRING || type == ElementType.BOOLEAN) {
+            ElementType variableType = hash.get(((Operand) element).getName()).getVarType().getTypeOfElement();
+            if(hash.equals(ElementType.ARRAYREF)) {
+                return getArray(element, "", hash) + "iaload\n";
+            }
             int reg = hash.get(((Operand) element).getName()).getVirtualReg();
-            String instruction = "iload";
-            if (reg >= 0 && reg <= 3) {
-                instruction = instruction + "_";
-            }
-            else {
-                instruction = instruction + " ";
-            }
-            return instruction + reg + "\n";
+            return iload(reg);
         }
 
         // aload
         if (type == ElementType.OBJECTREF || type == ElementType.ARRAYREF || type == ElementType.THIS) {
             int reg = hash.get(((Operand) element).getName()).getVirtualReg();
-            String instruction = "aload";
-            if (reg >= 0 && reg <= 3) {
-                instruction = instruction + "_";
-            } else {
-                instruction = instruction + " ";
-            }
-            return instruction + reg + "\n";
+            return aload(reg);
         }
         return "";
     }
@@ -408,6 +405,27 @@ public class OLLIRtoJasmin {
         else if (numI >= -32768 && numI <= 32767) code = "sipush " + num;
         else code = "ldc " + num;
         return code + "\n";
+    }
+
+    private String iload(int reg) {
+        String instruction = "iload";
+        if (reg >= 0 && reg <= 3) {
+            instruction = instruction + "_";
+        }
+        else {
+            instruction = instruction + " ";
+        }
+        return instruction + reg + "\n";
+    }
+
+    private String aload(int reg) {
+        String instruction = "aload";
+        if (reg >= 0 && reg <= 3) {
+            instruction = instruction + "_";
+        } else {
+            instruction = instruction + " ";
+        }
+        return instruction + reg + "\n";
     }
 
     public String getInvokeStatic(CallInstruction instruction, Method method) {
