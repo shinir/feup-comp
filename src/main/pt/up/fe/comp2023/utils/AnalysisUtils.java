@@ -4,6 +4,9 @@ import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNode;
+import pt.up.fe.comp.jmm.report.Report;
+import pt.up.fe.comp.jmm.report.ReportType;
+import pt.up.fe.comp.jmm.report.Stage;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,7 +16,14 @@ import java.util.Objects;
 public class AnalysisUtils {
 
     static final List<String> ARITHMETIC_OP = Arrays.asList("+", "-", "*", "/");
+
+    public Symbol getSymbol(JmmNode jmmNode) {
+        String symbol = jmmNode.get("name");
+        Type type = new Type(jmmNode.getJmmChild(0).get("name"),Boolean.parseBoolean(jmmNode.getJmmChild(0).get("isArray")));
+        return new Symbol(type, symbol);
+    }
     public Type getType(JmmNode jmmNode, SymbolTable symbolTable) {
+
 
         if (jmmNode.getKind().equals("VarDeclaration")){
             //symbol table check
@@ -23,6 +33,46 @@ public class AnalysisUtils {
         }
         if (jmmNode.getKind().equals("FunctionMethodDeclaration")){
             //symbol table
+        }
+        if (jmmNode.getKind().equals("Assignment")){
+            JmmNode node = jmmNode;
+            while (node.getJmmParent() != null){
+                if (node.hasAttribute("funcName")) break;
+                node = node.getJmmParent();
+            }
+            if (node.hasAttribute("funcName")){
+
+                List<Symbol> parameters = new ArrayList<>();
+                for (JmmNode child : node.getChildren()){
+                    if (child.getKind().equals("Parameter")){
+                        Symbol symbol = this.getSymbol(child);
+                            parameters.add(symbol);
+                        }
+                    }
+                
+                StringBuilder signature = new StringBuilder();
+                signature.append(node.get("funcName"));
+                for (Symbol s : parameters){
+                    signature.append("#");
+                    signature.append(s.getType().print());
+                }
+
+                for (Symbol symbol : symbolTable.getParameters(signature.toString())){
+                    if (jmmNode.get("value").equals(symbol.getName())){
+                        return symbol.getType();
+                    }
+                }
+                for (Symbol symbol : symbolTable.getLocalVariables(signature.toString())){
+                    if (jmmNode.get("value").equals(symbol.getName())){
+                        return symbol.getType();
+                    }
+                }
+            }
+            for (Symbol symbol : symbolTable.getFields()){
+                if (jmmNode.get("value").equals(symbol.getName())){
+                    return symbol.getType();
+                }
+            }
         }
         if (jmmNode.getKind().equals("Parameter")){
             //symbol table
@@ -61,7 +111,44 @@ public class AnalysisUtils {
             return new Type("int", false);
         }
         if (jmmNode.getKind().equals("Variable")){
-            //
+            JmmNode node = jmmNode;
+            while (node.getJmmParent() != null){
+                if (node.hasAttribute("funcName")) break;
+                node = node.getJmmParent();
+            }
+            if (node.hasAttribute("funcName")){
+
+                List<Symbol> parameters = new ArrayList<>();
+                for (JmmNode child : jmmNode.getChildren()){
+                    if (child.getKind().equals("Parameter")){
+                        Symbol symbol = this.getSymbol(child);
+                        parameters.add(symbol);
+                    }
+                }
+
+                StringBuilder signature = new StringBuilder();
+                signature.append(node.get("funcName"));
+                for (Symbol s : parameters){
+                    signature.append("#");
+                    signature.append(s.getType().print());
+                }
+
+                for (Symbol symbol : symbolTable.getParameters(signature.toString())){
+                    if (jmmNode.get("name").equals(symbol.getName())){
+                        return symbol.getType();
+                    }
+                }
+                for (Symbol symbol : symbolTable.getLocalVariables(signature.toString())){
+                    if (jmmNode.get("name").equals(symbol.getName())){
+                        return symbol.getType();
+                    }
+                }
+            }
+            for (Symbol symbol : symbolTable.getFields()){
+                if (jmmNode.get("name").equals(symbol.getName())){
+                    return symbol.getType();
+                }
+            }
         }
         if (jmmNode.getKind().equals("This")){
             //
@@ -70,14 +157,16 @@ public class AnalysisUtils {
     }
 
 
-    public Symbol getSymbol(JmmNode jmmNode) {
-        String symbol = jmmNode.get("name");
-        Type type = new Type(jmmNode.getJmmChild(0).get("name"),Boolean.parseBoolean(jmmNode.getJmmChild(0).get("isArray")));
-        return new Symbol(type, symbol);
-    }
-
     public void putType(JmmNode jmmNode, Type type) {
         jmmNode.put("type", type.getName());
         jmmNode.put("isArray", String.valueOf(type.isArray()));
+    }
+
+    public static String getImportWord(String str) {
+        int lastIndex = str.lastIndexOf('.');
+        if (lastIndex != -1 && lastIndex < str.length() - 1) {
+            return str.substring(lastIndex + 1);
+        }
+        return str;
     }
 }
