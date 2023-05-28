@@ -39,7 +39,7 @@ public class AnalysisUtils {
             JmmNode type = jmmNode.getJmmChild(0);
             return new Type(type.get("name"), type.hasAttribute("isArray") && type.get("isArray").equals("false"));
         }
-        /*if (jmmNode.getKind().equals("Assignment")){
+        if (jmmNode.getKind().equals("Assignment")){
             JmmNode node = jmmNode;
             while (node.getJmmParent() != null){
                 if (node.hasAttribute("funcName")) break;
@@ -78,7 +78,7 @@ public class AnalysisUtils {
                     return symbol.getType();
                 }
             }
-        }*/
+        }
         if (jmmNode.getKind().equals("Parameter")){
             JmmNode type = jmmNode.getJmmChild(0);
             return new Type(type.get("name"), type.hasAttribute("isArray") && type.get("isArray").equals("false"));

@@ -29,7 +29,6 @@ public class Analysis implements JmmAnalysis {
 
         List<Report> reports = new ArrayList<Report>();
 
-        //VariableVisitor.visit(root, symbolTable);
         System.out.println("SymbolTable: \n" + symbolTable.print());
 
         reports = SpecsCollections.concat(analysisVisitor.getReports(), variableVisitor.getReports());
