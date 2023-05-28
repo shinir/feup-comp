@@ -13,4 +13,9 @@ public class OllirExpression {
         this.value = "";
         this.prefix = "";
     }
+
+    @Override
+    public String toString(){
+        return "Prefix code:\n" + this.prefix + "\nValue: " + this.value + "\n";
+    }
 }
