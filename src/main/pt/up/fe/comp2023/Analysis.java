@@ -26,6 +26,7 @@ public class Analysis implements JmmAnalysis {
         analysisVisitor.visit( root, symbolTable );
         variableVisitor.visit( root, symbolTable );
 
+
         List<Report> reports = new ArrayList<Report>();
 
         //VariableVisitor.visit(root, symbolTable);
