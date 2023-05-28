@@ -145,7 +145,8 @@ public class OLLIRtoJasmin {
 
     public String getCode(Method method, CallInstruction callInstruction) {
         return switch (callInstruction.getInvocationType()) {
-            case NEW -> getCode(callInstruction, method);
+            case NEW -> getCodeNew(callInstruction, method);
+            case arraylength -> getCodeArray(callInstruction, method);
             case invokestatic -> getInvokeStatic(callInstruction, method);
             case invokespecial -> getInvokeSpecial(callInstruction, method);
             case invokevirtual -> getInvokeVirtual(callInstruction, method);
@@ -153,11 +154,26 @@ public class OLLIRtoJasmin {
         };
     }
 
-    public String getCode(CallInstruction callInstruction, Method method) {
+    public String getCodeNew(CallInstruction callInstruction, Method method) {
         StringBuilder code = new StringBuilder();
-        String returnType = ((ClassType)callInstruction.getReturnType()).getName();
+        callInstruction.show();
 
-        code.append(call(returnType)).append("dup\n");
+        if(callInstruction.getReturnType().getTypeOfElement() != ElementType.ARRAYREF) {
+            String returnType = ((ClassType)callInstruction.getReturnType()).getName();
+            code.append("new ").append(JasminUtils.getSuperPath(classUnit,returnType)).append("\n").append("dup\n");
+        }
+        else {
+            String load = getLoad(method.getVarTable(), callInstruction.getListOfOperands().get(0));
+            code.append(load).append("newarray int\n");
+        }
+
+        return code.toString();
+    }
+
+    public String getCodeArray(CallInstruction callInstruction, Method method) {
+        StringBuilder code = new StringBuilder();
+        code.append(getLoad(method.getVarTable(), callInstruction.getFirstArg()))
+            .append("arraylength\n");
 
         return code.toString();
     }
