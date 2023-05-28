@@ -11,7 +11,7 @@ public class MySymbolTable implements SymbolTable {
     List<String> imports = new ArrayList<>();
     String className = null, supers = null;
     List<Symbol> fields = new ArrayList<>();
-    Map<String, Method> functMethods = new HashMap<>(), mainMethods = new HashMap<>();
+    Map<String, Method> functMethods = new HashMap<>();//, mainMethods = new HashMap<>();
 
     @Override
     public List<String> getImports() {
@@ -52,10 +52,6 @@ public class MySymbolTable implements SymbolTable {
     @Override
     public List<String> getMethods() {
         return new ArrayList<>(this.functMethods.keySet());
-    }
-
-    public void addMainMethod(String name, List<Symbol> parameters, List<Symbol> localVariables, Type type){
-        this.mainMethods.put(name, new Method(type, parameters, localVariables));
     }
 
     public void addMethods(String name, List<Symbol> parameters, List<Symbol> localVariables, Type type) {

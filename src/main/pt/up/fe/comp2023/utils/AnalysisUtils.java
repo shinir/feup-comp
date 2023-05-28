@@ -8,8 +8,7 @@ import java.util.Objects;
 
 public class AnalysisUtils {
     public Type getType(JmmNode jmmNode) {
-        boolean isArray = false;
-        if(jmmNode.hasAttribute("isArray") && isArray == true) isArray = true;
+        boolean isArray = jmmNode.getAttributes().contains("isArray") && jmmNode.get("isArray").equals("true");
         if (jmmNode.getJmmParent().hasAttribute("name")) return new Type(jmmNode.getJmmParent().get("name"), isArray);
         return new Type(jmmNode.getJmmParent().get("funcName"), isArray);
     }
