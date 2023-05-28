@@ -23,7 +23,7 @@ public class Analysis implements JmmAnalysis {
 
         JmmNode root = jmmParserResult.getRootNode();
 
-        analysisVisitor.visit( root, symbolTable );
+        //analysisVisitor.visit( root, symbolTable );
         //variableVisitor.visit( root, symbolTable );
 
         List<Report> reports = new ArrayList<Report>();

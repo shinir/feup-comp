@@ -37,7 +37,7 @@ public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
     }
 
     private Boolean dealWithAssigment(JmmNode jmmNode, MySymbolTable symbolTable) {
-        //Type lhsType = utils.getType(jmmNode.getJmmChild(0));
+        Type lhsType = utils.getType(jmmNode.getJmmChild(0), symbolTable);
         //Type rhsType = utils.getType(jmmNode.getJmmChild(1));
         return false;
     }
