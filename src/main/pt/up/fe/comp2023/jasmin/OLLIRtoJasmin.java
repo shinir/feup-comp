@@ -252,15 +252,22 @@ public class OLLIRtoJasmin {
 
     private String getStore(Element l, String r, HashMap<String, Descriptor> hash) {
         ElementType type = l.getType().getTypeOfElement();
-        int reg = hash.get(((Operand) l).getName()).getVirtualReg();
+        Descriptor reg = hash.get(((Operand) l).getName());
 
         if (type == ElementType.INT32 || type == ElementType.STRING || type == ElementType.BOOLEAN) {
-            return r + "istore" + store(reg);
+            if(reg.getVarType().getTypeOfElement() == ElementType.ARRAYREF) {
+                return getLoad(hash, l) + "iaload\n";
+            }
+            return r + "istore" + store(reg.getVirtualReg());
         }
         else if (type == ElementType.OBJECTREF || type == ElementType.THIS || type == ElementType.ARRAYREF) {
-            return r + "astore" + store(reg);
+            return r + "astore" + store(reg.getVirtualReg());
         }
         return "";
+    }
+
+    private String storeArray(Element l, String r, HashMap<String, Descriptor> hash) {
+        int
     }
 
     private String store(int reg) {
