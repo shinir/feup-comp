@@ -37,7 +37,7 @@ functionMethodDeclaration
     ;
 
 mainMethodDeclaration
-     : ('public')? 'static' 'void' 'main' '(' 'String' '[' ']' name=ID ')' '{' ( varDeclaration )* ( statement )* '}'
+     : ('public')? 'static' 'void' funcName='main' '(' 'String' '[' ']' name=ID ')' '{' ( varDeclaration )* ( statement )* '}'
      ;
 
 parameter
@@ -83,5 +83,5 @@ expression
     | value=BOOL #Bool
     | value=INTEGER #Integer
     | name=ID #Variable
-    | 'this' #This
+    | name='this' #This
     ;

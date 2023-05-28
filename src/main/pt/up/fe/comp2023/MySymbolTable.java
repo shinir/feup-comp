@@ -54,6 +54,10 @@ public class MySymbolTable implements SymbolTable {
         return new ArrayList<>(this.functMethods.keySet());
     }
 
+    public void addMainMethod(String name, List<Symbol> parameters, List<Symbol> localVariables, Type type){
+        this.mainMethods.put(name, new Method(type, parameters, localVariables));
+    }
+
     public void addMethods(String name, List<Symbol> parameters, List<Symbol> localVariables, Type type) {
         this.functMethods.put(name, new Method(type, parameters, localVariables));
     }
