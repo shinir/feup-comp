@@ -299,8 +299,7 @@ public class OLLIRtoJasmin {
             case DIV -> code.append("idiv\n");
             case OR -> code.append("ior\n");
             case LTH -> {
-                code.append("if_icmplt");
-                // TODO
+                lessThan(instruction.getLeftOperand(), instruction.getRightOperand());
             }
             case ANDB -> throw new NotImplementedException("boolean and");
             case NOTB -> throw new NotImplementedException("boolean not");
@@ -319,7 +318,7 @@ public class OLLIRtoJasmin {
         code.append("LTH_").append(sec).append("\n");
         code.append("LTH_").append(first).append(":\n");
         code.append(iconst("1")).append("LTH_").append(sec).append(":\n");
-        
+
         return code.toString();
     }
 
