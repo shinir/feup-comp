@@ -4,11 +4,15 @@ import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNode;
+import pt.up.fe.comp.jmm.report.Report;
+import pt.up.fe.comp.jmm.report.ReportType;
+import pt.up.fe.comp.jmm.report.Stage;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 public class AnalysisUtils {
 
@@ -49,8 +53,13 @@ public class AnalysisUtils {
             return new Type("int", false);
         }
         if (jmmNode.getKind().equals("CallFunction")){
-
-            //return symbolTable.getReturnType(signature.toString());
+            StringBuilder signature = new StringBuilder();
+            signature.append(jmmNode.get("funcName"));
+            for (int idx = 1; idx < jmmNode.getChildren().size(); idx++){
+                signature.append("#");
+                signature.append(getType(jmmNode.getJmmChild(idx), symbolTable).getName());
+            }
+            return symbolTable.getReturnType(signature.toString());
         }
         if (jmmNode.getKind().equals("BinaryOp")){
             if (ARITHMETIC_OP.contains(jmmNode.get("op"))) return new Type("int", false);
@@ -73,7 +82,44 @@ public class AnalysisUtils {
             return new Type(symbolTable.getClassName(), false);
         }
         if (jmmNode.getKind().equals("Variable")){
+            JmmNode node = jmmNode;
+            while (node != null) {
+                if (node.getKind().equals("MethodDeclaration")) break;
+                if (node.getKind().equals("Class")) break;
+                node = node.getJmmParent();
+            }
+            if (node == null) return null;
+            if (node.getKind().equals("MethodDeclaration")){
+                node = node.getJmmChild(0);
+                StringBuilder signature = new StringBuilder();
 
+                signature.append(node.get("funcName"));
+                if (node.getKind().equals("MainMethodDeclaration")) {
+                    signature.append("#");
+                    signature.append("String[]");
+                }
+                else{
+                    for (JmmNode child : jmmNode.getChildren()){
+                        if (child.getKind().equals("Parameter")){
+                            Symbol symbol = getSymbol(child);
+                            signature.append("#");
+                            signature.append(symbol.getName());
+                        }
+                    }
+                }
+                for (Symbol symbol : symbolTable.getParameters(signature.toString())){
+                    if (jmmNode.get("name").equals(symbol.getName())) return symbol.getType();
+                }
+                for (Symbol symbol : symbolTable.getLocalVariables(signature.toString())){
+                    if (jmmNode.get("name").equals(symbol.getName())) return symbol.getType();
+                }
+                while (node.getKind().equals("Class")) node = node.getJmmParent();
+            }
+            if (node.getKind().equals("Class")){
+                for (Symbol symbol : symbolTable.getFields()){
+                    if (jmmNode.get("name").equals(symbol.getName())) return symbol.getType();
+                }
+            }
         }
         return null;
     }
