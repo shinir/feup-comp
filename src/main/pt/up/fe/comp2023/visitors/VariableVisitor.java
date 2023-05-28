@@ -1,6 +1,5 @@
 package pt.up.fe.comp2023.visitors;
 
-import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.ast.PreorderJmmVisitor;
 import pt.up.fe.comp.jmm.report.ReportType;
@@ -27,52 +26,12 @@ public class VariableVisitor extends PreorderJmmVisitor<MySymbolTable, Boolean> 
 
     @Override
     protected void buildVisitor() {
-        this.addVisit("Variable", this::dealWithVariables);
         this.addVisit("ArrayAccess", this::dealWithArrayAssignment);
         this.addVisit("WhileCondition", this::dealWithCondition);
         this.addVisit("IfCondition", this::dealWithCondition);
         this.addVisit("BinaryOp", this::dealWithBinaryOp);
         this.addVisit("Assignment", this::dealWithAssignment);
         this.setDefaultVisit(this::myVisitAllChildren);
-    }
-
-    private Boolean dealWithVariables(JmmNode jmmNode, MySymbolTable symbolTable) {
-        JmmNode node = jmmNode.getJmmParent();
-        while (node != null){
-            if (node.getKind().equals("MethodDeclaration")){
-                JmmNode child = node.getJmmChild(0);
-                String signature = child.get("signature");
-
-                for (Symbol symbol : symbolTable.getParameters(signature)){
-                    if (symbol.getName().equals(jmmNode.get("name"))){
-                        return true;
-                    }
-                }
-                for (Symbol symbol : symbolTable.getLocalVariables(signature)){
-                    if (symbol.getName().equals(jmmNode.get("name"))){
-                        return true;
-                    }
-                }
-            }
-            if (node.getKind().equals("Class")){
-                for (Symbol symbol : symbolTable.getFields()){
-                    if (symbol.getName().equals(jmmNode.get("name"))){
-                        return true;
-                    }
-                }
-                for (String path : symbolTable.getImports()){
-                    if (path.substring(path.lastIndexOf(".")+1).equals(jmmNode.get("name"))){
-                        return true;
-                    }
-                }
-            }
-            node = node.getJmmParent();
-        }
-
-
-        Report newReport = new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "Variable not Declared");
-        reports.add(newReport);
-        return false;
     }
 
     private Boolean dealWithArrayAssignment(JmmNode jmmNode, MySymbolTable symbolTable) {
