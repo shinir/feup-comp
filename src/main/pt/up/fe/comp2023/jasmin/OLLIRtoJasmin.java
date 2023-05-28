@@ -256,7 +256,7 @@ public class OLLIRtoJasmin {
 
         if (type == ElementType.INT32 || type == ElementType.STRING || type == ElementType.BOOLEAN) {
             if(reg.getVarType().getTypeOfElement() == ElementType.ARRAYREF) {
-                return getLoad(hash, l) + "iaload\n";
+                return getLoad(hash, l) + "iastore\n";
             }
             return r + "istore" + store(reg.getVirtualReg());
         }
@@ -369,7 +369,7 @@ public class OLLIRtoJasmin {
         ElementType type = element.getType().getTypeOfElement();
         // iconst
         if (element.isLiteral()) {
-            return iconst(((LiteralElement) element).getLiteral());
+            return iconst(((LiteralElement) element).getLiteral()) + "iaload";
         }
 
         // iload
@@ -382,7 +382,7 @@ public class OLLIRtoJasmin {
             else {
                 instruction = instruction + " ";
             }
-            return instruction + reg + "\n";
+            return instruction + reg + "\n" + "iaload";
         }
 
         // aload
@@ -394,7 +394,7 @@ public class OLLIRtoJasmin {
             } else {
                 instruction = instruction + " ";
             }
-            return instruction + reg + "\n";
+            return instruction + reg + "\n" + "iaload";
         }
         return "";
     }
@@ -409,7 +409,7 @@ public class OLLIRtoJasmin {
         else code = "ldc " + num;
         return code + "\n";
     }
-    
+
     public String getInvokeStatic(CallInstruction instruction, Method method) {
         StringBuilder code = new StringBuilder();
         HashMap<String, Descriptor> hash = method.getVarTable();
