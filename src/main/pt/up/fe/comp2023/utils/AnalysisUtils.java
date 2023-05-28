@@ -26,15 +26,20 @@ public class AnalysisUtils {
 
 
         if (jmmNode.getKind().equals("VarDeclaration")){
-            //symbol table check
+            JmmNode type = jmmNode.getJmmChild(0);
+            return new Type(type.get("name"), type.hasAttribute("isArray") && type.get("isArray").equals("false"));
+        }
+        if (jmmNode.getKind().equals("MethodDeclaration")){
+            return getType(jmmNode.getJmmChild(0), symbolTable);
         }
         if (jmmNode.getKind().equals("MainMethodDeclaration")){
             return new Type("void", false);
         }
         if (jmmNode.getKind().equals("FunctionMethodDeclaration")){
-            //symbol table
+            JmmNode type = jmmNode.getJmmChild(0);
+            return new Type(type.get("name"), type.hasAttribute("isArray") && type.get("isArray").equals("false"));
         }
-        if (jmmNode.getKind().equals("Assignment")){
+        /*if (jmmNode.getKind().equals("Assignment")){
             JmmNode node = jmmNode;
             while (node.getJmmParent() != null){
                 if (node.hasAttribute("funcName")) break;
@@ -73,9 +78,13 @@ public class AnalysisUtils {
                     return symbol.getType();
                 }
             }
-        }
+        }*/
         if (jmmNode.getKind().equals("Parameter")){
-            //symbol table
+            JmmNode type = jmmNode.getJmmChild(0);
+            return new Type(type.get("name"), type.hasAttribute("isArray") && type.get("isArray").equals("false"));
+        }
+        if (jmmNode.getKind().equals("ReturnExpression")){
+            return getType(jmmNode.getJmmChild(0), symbolTable);
         }
         if (jmmNode.getKind().equals("Not")){
             return new Type("boolean", false);
