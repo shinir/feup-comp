@@ -44,7 +44,7 @@ public class OllirGenerator extends AJmmVisitor<String, OllirExpression> {
         addVisit("VariableDeclaration", this::varDeclVisit);
         addVisit("MethodDeclaration", this::methodDeclVisit);
         addVisit("CallFunction", this::methodCallVisit);
-        addVisit("NewObj", this::newObjVisit);
+        addVisit("NewVar", this::newObjVisit);
         addVisit("BinaryOp", this::binOpVisit);
         addVisit("Assignment", this::assignmentVisit);
         addVisit("Integer", this::intLiteralVisit);
@@ -172,13 +172,14 @@ public class OllirGenerator extends AJmmVisitor<String, OllirExpression> {
             }
             code.append(").V;\n");
         } else {
-            value = nextTemp() + ".i32"; String type = "";
+            String type = ollirUtils.getCode(getVarType(methodCall.getJmmChild(0).get("name"), getMethod(methodCall)),false);
+            value = nextTemp() + ".i32";
             // It is a virtual function
             String temp = nextTemp();
             value = temp + ".i32";
-            //code.append(value).append(" :=.i32 ");
+            code.append(value).append(" :=.i32 ");
 
-            code.append("invokevirtual(").append(methodCall.getJmmChild(0).get("name")).append(", ").append("\"").append(methodCall.get("functName")).append("\"");
+            code.append("invokevirtual(").append(methodCall.getJmmChild(0).get("name")).append(".").append(type).append(", ").append("\"").append(methodCall.get("functName")).append("\"");
             for (String p: params) {
                 code.append(", ").append(p);
             }
@@ -190,18 +191,18 @@ public class OllirGenerator extends AJmmVisitor<String, OllirExpression> {
 
     private OllirExpression newObjVisit(JmmNode jmmNode, String var){
         StringBuilder newObject = new StringBuilder();
-        Type objType = ollirUtils.getType(jmmNode);
+        Type objType = new Type(jmmNode.get("name"), false);
 
-        newObject.append("new(").append(jmmNode.get("type")).append(").").append(ollirUtils.getCode(new Symbol(objType, "objType")));
+        newObject.append("new(").append(jmmNode.get("name")).append(").").append(jmmNode.get("name"));
 
-        Type call = ollirUtils.getType(jmmNode);
-        String temp =  nextTemp();
+        StringBuilder code = new StringBuilder();
+        String temp =  nextTemp(); temp += "." + jmmNode.get("name");
 
-        ollirCode.append(temp).append(" :=.").append(ollirUtils.getCode(new Symbol(objType, "objType"))).append(" ").append(newObject).append(";\n");
+        code.append(temp).append(" :=.").append(jmmNode.get("name")).append(" ").append(newObject).append(";\n");
 
-        ollirCode.append("invokespecial(").append(temp).append(",\"<init>\").V;\n");
+        code.append("invokespecial(").append(temp).append(",\"<init>\").V;\n");
 
-        return new OllirExpression("", "");
+        return new OllirExpression(code.toString(), temp);
     }
 
     private OllirExpression binOpVisit(JmmNode binOp, String var){
