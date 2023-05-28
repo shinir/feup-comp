@@ -119,7 +119,7 @@ public class AnalysisUtils {
             if (node.hasAttribute("funcName")){
 
                 List<Symbol> parameters = new ArrayList<>();
-                for (JmmNode child : jmmNode.getChildren()){
+                for (JmmNode child : node.getChildren()){
                     if (child.getKind().equals("Parameter")){
                         Symbol symbol = this.getSymbol(child);
                         parameters.add(symbol);
