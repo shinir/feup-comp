@@ -91,12 +91,13 @@ public class AnalysisUtils {
             if (node == null) return null;
             if (node.getKind().equals("MethodDeclaration")){
                 node = node.getJmmChild(0);
+
                 String signature = node.get("signature");
 
-                for (Symbol symbol : symbolTable.getParameters(signature.toString())){
+                for (Symbol symbol : symbolTable.getParameters(signature)){
                     if (jmmNode.get("name").equals(symbol.getName())) return symbol.getType();
                 }
-                for (Symbol symbol : symbolTable.getLocalVariables(signature.toString())){
+                for (Symbol symbol : symbolTable.getLocalVariables(signature)){
                     if (jmmNode.get("name").equals(symbol.getName())) return symbol.getType();
                 }
                 while (node.getKind().equals("Class")) node = node.getJmmParent();
