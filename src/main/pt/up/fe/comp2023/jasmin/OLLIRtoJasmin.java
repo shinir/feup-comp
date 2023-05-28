@@ -409,7 +409,7 @@ public class OLLIRtoJasmin {
         else code = "ldc " + num;
         return code + "\n";
     }
-
+    
     public String getInvokeStatic(CallInstruction instruction, Method method) {
         StringBuilder code = new StringBuilder();
         HashMap<String, Descriptor> hash = method.getVarTable();
