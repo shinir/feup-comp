@@ -3,7 +3,6 @@ package pt.up.fe.comp2023.jasmin;
 import org.specs.comp.ollir.*;
 import pt.up.fe.specs.util.exceptions.NotImplementedException;
 
-import javax.swing.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.stream.Collectors;
@@ -246,21 +245,18 @@ public class OLLIRtoJasmin {
         return code.toString();
     }
 
-    /*
     private String call(String className) {
         String out = JasminUtils.getSuperPath(classUnit, className);
         return "new " + out +  '\n';
-    }*/
+    }
 
     private String getStore(Element l, String r, HashMap<String, Descriptor> hash) {
         ElementType type = l.getType().getTypeOfElement();
         Descriptor reg = hash.get(((Operand) l).getName());
-        int reg1 = reg.getVirtualReg();
-        int reg2 = hash.get(((Operand) ((ArrayOperand) l).getIndexOperands().get(0)).getName()).getVirtualReg();
 
         if (type == ElementType.INT32 || type == ElementType.STRING || type == ElementType.BOOLEAN) {
             if(reg.getVarType().getTypeOfElement() == ElementType.ARRAYREF) {
-                return aload(reg1) + iload(reg2) + "iaload\n";
+                return getLoad(hash, l) + "iaload\n";
             }
             return r + "istore" + store(reg.getVirtualReg());
         }
@@ -379,13 +375,26 @@ public class OLLIRtoJasmin {
         // iload
         if (type == ElementType.INT32 || type == ElementType.STRING || type == ElementType.BOOLEAN) {
             int reg = hash.get(((Operand) element).getName()).getVirtualReg();
-            return iload(reg);
+            String instruction = "iload";
+            if (reg >= 0 && reg <= 3) {
+                instruction = instruction + "_";
+            }
+            else {
+                instruction = instruction + " ";
+            }
+            return instruction + reg + "\n";
         }
 
         // aload
         if (type == ElementType.OBJECTREF || type == ElementType.ARRAYREF || type == ElementType.THIS) {
             int reg = hash.get(((Operand) element).getName()).getVirtualReg();
-            return aload(reg);
+            String instruction = "aload";
+            if (reg >= 0 && reg <= 3) {
+                instruction = instruction + "_";
+            } else {
+                instruction = instruction + " ";
+            }
+            return instruction + reg + "\n";
         }
         return "";
     }
@@ -400,28 +409,7 @@ public class OLLIRtoJasmin {
         else code = "ldc " + num;
         return code + "\n";
     }
-
-    private String iload(int reg) {
-        String instruction = "iload";
-        if (reg >= 0 && reg <= 3) {
-            instruction = instruction + "_";
-        }
-        else {
-            instruction = instruction + " ";
-        }
-        return instruction + reg + "\n";
-    }
-
-    private String aload(int reg) {
-        String instruction = "aload";
-        if (reg >= 0 && reg <= 3) {
-            instruction = instruction + "_";
-        } else {
-            instruction = instruction + " ";
-        }
-        return instruction + reg + "\n";
-    }
-
+    
     public String getInvokeStatic(CallInstruction instruction, Method method) {
         StringBuilder code = new StringBuilder();
         HashMap<String, Descriptor> hash = method.getVarTable();
