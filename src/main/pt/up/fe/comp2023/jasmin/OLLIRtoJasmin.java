@@ -318,7 +318,7 @@ public class OLLIRtoJasmin {
         switch (operation) {
             case ADD -> code.append("iadd\n");
             case SUB -> code.append("isub\n");
-            case MUL, ANDB -> code.append("imul\n");
+            case MUL -> code.append("imul\n");
             case DIV -> code.append("idiv\n");
             case OR -> code.append("ior\n");
             default -> code.append("");
