@@ -314,35 +314,35 @@ public class OLLIRtoJasmin {
 
     private String lessThan() {
         StringBuilder code = new StringBuilder();
-        String first = "LTH_" + lbl++;
-        String sec = "LTH_" + lbl++;
-
-        code.append("if_icmplt").append(first).append("\n");
-        code.append(iconst("0")).append("goto");
-        code.append(sec).append("\n");
-        code.append(first).append(":\n");
-        code.append(iconst("1")).append(sec).append(":\n");
-
+        String first = "LTH_" + next();
+        String second = "LTH_" + next();
+        code.append("if_icmplt ").append(first).append("\n")
+                .append(iconst("0")).append("goto ")
+                .append(second).append("\n").append(first).append(":\n")
+                .append(iconst("1")).append(second).append(":\n");
         return code.toString();
     }
 
     private String andBoolean(Element left, Element right) {
         StringBuilder code = new StringBuilder();
-        String first = "ANDB_" + lbl++;
-        String sec = "ANDB_" + lbl++;
+        String first = "ANDB_" + next();
+        String second = "ANDB_" + next();
 
-        code.append(left);
-        code.append("ifeq").append(first).append("\n");
-        code.append(right);
-        code.append("ifeq").append(first).append("\n");
-        code.append(iconst("1")).append("goto");
-        code.append(sec).append("\n");
-        code.append(first).append(":\n");
-        code.append(iconst("0"));
-        code.append(sec).append(":\n");
-
+        code.append(left)
+            .append("ifeq ").append(first).append("\n")
+            .append(right)
+            .append("ifeq ").append(first).append("\n")
+            .append(iconst("1"))
+            .append("goto ").append(second).append("\n")
+            .append(first).append(":\n")
+            .append(iconst("0"))
+            .append(second).append(":\n");
 
         return code.toString();
+    }
+
+    private int next() {
+        return this.lbl++;
     }
 
     private String getLoad(HashMap<String, Descriptor> hash, Element element) {
